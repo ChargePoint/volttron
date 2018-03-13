@@ -1,0 +1,13 @@
+{
+  "name": "function_test_curve",
+  "function_id": "curve",
+  "function_name": "curve_function",
+  "Curve Edit Selector": 2,
+  "CurveStart-X": [
+    {
+      "Curve-X": 111,
+      "Curve-Y": 2
+    }
+                  ],
+  "Curve Number of Points": 5
+}

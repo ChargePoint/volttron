@@ -1,0 +1,13 @@
+{
+  "name": "volt_var_control_mode_test",
+  "function_id": "LN DVVC",
+  "function_name": "volt_var_control_mode",
+  "DVVC.ECPRef- id": 12,
+  "DVVC.VRef": 12,
+  "DVVC.WinTms": 12,
+  "DVVC.RmpTms": 12,
+  "DVVC.RvrtTms": 14,
+  "DVVC.PairArrVVar": 20,
+  "DVVC.ModEna": 51,
+   "DVVC.ModPrty": 12
+}

@@ -580,7 +580,7 @@ class FunctionDefinition(object):
             # Set supported to False if the Function has a defined support_point_name -- the Control Agent must set it.
             self.supported = not self.support_point_name
             # @todo Hard-coded temporarily for test purposes.
-            self.supported = True
+            # self.supported = True
         except AttributeError as err:
             raise AttributeError('Error creating FunctionDefinition {}, err={}'.format(self.name, err))
 

@@ -161,7 +161,7 @@ class TestMesaAgent:
         except KeyError:
             return None
 
-    def run_test(self, master, agent, json_file, support_point=None, fail_state=False):
+    def run_test(self, master, agent, json_file, support_point='', fail_state=False):
         """Test get points to confirm if points is set correctly by master."""
 
         if support_point:
@@ -217,8 +217,8 @@ class TestMesaAgent:
         self.run_test(run_master, agent, 'curve.json')
 
 
-# send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'curve.json'))
-# TestMesaAgent.send_points(run_master(), send_json_path)
+send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'curve.json'))
+TestMesaAgent.send_points(run_master(), send_json_path)
 
 # master = run_master()
 # send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'charge_discharge.json'))

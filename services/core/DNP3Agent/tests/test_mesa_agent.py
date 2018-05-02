@@ -216,6 +216,10 @@ class TestMesaAgent:
         """Test function curve_function."""
         self.run_test(run_master, agent, 'curve.json')
 
+    def test_inverter(self, run_master, agent):
+        """Test inverter function"""
+        self.run_test(run_master, agent, 'inverter.json')
+
 
 send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'curve.json'))
 TestMesaAgent.send_points(run_master(), send_json_path)

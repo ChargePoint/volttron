@@ -142,7 +142,6 @@ class MesaMasterApplication(DNP3Master):
 
             except (KeyError, IndexError):
                 if type(point_value) == list:  # or check if the type is array
-                    array_points = pdef.array_points
                     send_array(pdef.index, point_value, pdef)
                     continue
                 else:

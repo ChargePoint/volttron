@@ -221,8 +221,8 @@ class TestMesaAgent:
     #     self.run_test(run_master, agent, 'inverter.json')
 
 
-send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'curve.json'))
-TestMesaAgent.send_points(run_master(), send_json_path)
+# send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'inverter.json'))
+# TestMesaAgent.send_points(run_master(), send_json_path)
 
 # master = run_master()
 # send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'charge_discharge.json'))

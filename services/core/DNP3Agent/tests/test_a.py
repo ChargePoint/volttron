@@ -212,6 +212,8 @@ class TestMesaAgent:
         """Do not set the support point to True"""
         self.run_test(run_master, agent, 'charge_discharge.json', "Supports Charge/Discharge Mode", True)
 
+        assert messages == {}
+
     def test_charge_discharge(self, run_master, agent):
         """Test function charge_discharge_mode."""
 
@@ -234,9 +236,35 @@ class TestMesaAgent:
             "DCHD.ModEna": True
         }
 
-    def xxx_test_curve(self, run_master, agent):
+        clear_messages()
+
+    def test_curve(self, run_master, agent):
         """Test function curve_function."""
         self.run_test(run_master, agent, 'curve.json')
+
+        assert messages['mesa/function']['message']['points'] == {
+            "Curve Edit Selector": 2,
+            "Curve Mode Type": 40,
+            "Curve Time Window": 5000,
+            "Curve Ramp Time": 24,
+            "Curve Revert Time": 51,
+            "Curve Maximum Number of Points": 671,
+            "Independent (X-Value) Units for Curve": 51,
+            "Dependent (Y-Value) Units for Curve": 625,
+            "Curve Time Constant": 612,
+            "Curve Decreasing Max Ramp Rate": 331,
+            "Curve Increasing Ramp Rate": 451,
+            "CurveStart-X": [
+                {"Curve-X": 111, "Curve-Y": 2},
+                {"Curve-X": 3, "Curve-Y": 4},
+                {"Curve-X": 5, "Curve-Y": 6},
+                {"Curve-X": 7, "Curve-Y": 8},
+                {"Curve-X": 9, "Curve-Y": 10}
+            ],
+            "Curve Number of Points": 5
+        }
+
+        clear_messages()
 
     # def test_inverter(self, run_master, agent):
     #     """Test inverter function"""

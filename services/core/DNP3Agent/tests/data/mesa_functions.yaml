@@ -251,17 +251,3 @@ functions:
       - step_number: 14
         point_name: "FSCH.ActSchdRef"
         action: "publish"
-  - id: "array2"
-    name: "array_function"
-    ref: ""
-    steps:
-      - step_number: 1
-        point_name: "Curve Edit Selector"
-        optional: "M"
-      - step_number: 2
-        point_name: "Inverter active power output - Present Active Power output level"
-      - step_number: 3
-        point_name: "Curve Number of Points"
-        optional: "M"
-        action: "publish_and_respond"
-        response: "Response Point"

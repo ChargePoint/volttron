@@ -111,19 +111,16 @@ class MesaMasterApplication(DNP3Master):
             OPERATE: self.send_select_and_operate_command,
         }
 
-        def send_array(index, json_array):
+        def send_array(index, json_array, point_def):
 
+            array_points = point_def.array_points
             for d in json_array:
-                command = COMMAND_TYPES[DIRECT_OPERATE]
-                output_type_x = OUTPUT_TYPES[type(d["Curve-X"])]
-                output_type_y = OUTPUT_TYPES[type(d["Curve-Y"])]
-                command(output_type_x(d["Curve-X"]), index)
-                index += 1
-                time.sleep(1)
-                command(output_type_y(d["Curve-Y"]), index)
-                index += 1
-                time.sleep(1)
-                print("index is {}".format(index))
+                for array_point in array_points:
+                    command = COMMAND_TYPES[DIRECT_OPERATE]
+                    output_type = OUTPUT_TYPES[type(d[array_point["name"]])]  # or array_point['name']
+                    command(output_type(d[array_point["name"]]), index)
+                    index += 1
+                    time.sleep(1)
 
         point_def_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'opendnp3_data.config'))
         pdefs = PointDefinitions(point_def_path)
@@ -144,7 +141,7 @@ class MesaMasterApplication(DNP3Master):
 
             except (KeyError, IndexError):
                 if type(point_value) == list:  # or check if the type is array
-                    send_array(pdef.index, point_value)
+                    send_array(pdef.index, point_value, pdef)
                     continue
                 else:
                     raise Exception("Unrecognized value type or command.")

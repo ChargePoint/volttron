@@ -1,218 +1,91 @@
-# -*- coding: utf-8 -*- {{{
-# vim: set fenc=utf-8 ft=python sw=4 ts=4 sts=4 et:
-#
-# Copyright 2018, eightminuteenergy / Kisensum.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# Neither eightminuteenergy nor Kisensum, nor any of their
-# employees, nor any jurisdiction or organization that has cooperated in the
-# development of these materials, makes any warranty, express or
-# implied, or assumes any legal liability or responsibility for the accuracy,
-# completeness, or usefulness or any information, apparatus, product,
-# software, or process disclosed, or represents that its use would not infringe
-# privately owned rights. Reference herein to any specific commercial product,
-# process, or service by trade name, trademark, manufacturer, or otherwise
-# does not necessarily constitute or imply its endorsement, recommendation, or
-# favoring by eightminuteenergy or Kisensum.
-# }}}
-
 import gevent
 import pytest
-import json
-import os
 import time
 
-from pydnp3 import asiodnp3, asiopal, opendnp3, openpal
-
-from volttron.platform import get_services_core
-from services.core.DNP3Agent.tests.mesa_master import MesaMasterApplication
-from services.core.DNP3Agent.base_dnp3_agent import PointDefinitions
-from services.core.DNP3Agent.tests.MesaTestAgent.testagent.agent import MesaTestAgent
-
-FILTERS = opendnp3.levels.NORMAL | opendnp3.levels.ALL_COMMS
-HOST = "127.0.0.1"
-LOCAL = "0.0.0.0"
-PORT = 20000
-
-MESA_AGENT_ID = 'mesaagent'
-
-POINT_DEFINITIONS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'opendnp3_data.config'))
-FUNCTION_DEFINITIONS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'mesa_functions.yaml'))
-
-pdefs = PointDefinitions(POINT_DEFINITIONS_PATH)
-
-input_group_map = {
-    1: "Binary",
-    2: "Binary",
-    30: "Analog",
-    31: "Analog",
-    32: "Analog",
-    33: "Analog",
-    34: "Analog"
-}
-
-MESA_AGENT_CONFIG = {
-    "point_definitions_path": POINT_DEFINITIONS_PATH,
-    "function_definitions_path": FUNCTION_DEFINITIONS_PATH,
-    "point_topic": "mesa/point",
-    "outstation_config": {
-        "database_sizes": 100,
-        "log_levels": "NORMAL | ALL_APP_COMMS"
-    },
-    "local_ip": "0.0.0.0",
-    "port": 20000
-}
-
-web_address = ""
-
-MESA_TEST_AGENT_CONFIG = {
-    "mesaagent_id": "mesaagent_test",
-    "point_topic": "mesa/point",
-    "function_topic": "mesa/function",
-    "outstation_status_topic": "mesa/outstation_status"
-}
-
-
-class ControlAgent:
-    def __init__(self, volttron_instance):
-        self.volttron_instance = volttron_instance
-        self.function_message = None
-        self.agent = volttron_instance.build_agent()
-
-    def install_agent(self, agent_dir, config_file, vip_identity, start):
-        return self.volttron_instance.install_agent(agent_dir, config_file, vip_identity, start)
-
-    def stop_agent(self, agent_id):
-        self.volttron_instance.stop_agent(agent_id)
-
-    def get_web_address(self):
-        return self.volttron_instance.bind_web_address
-
-    def subscribe_function(self):
-        self.agent.pubsub.subscribe('pubsub', 'mesa/function', self.get_function_json)
-
-    def get_function_json(self, peer, sender, bus, topic, headers, message):
-        if 'points' in message:
-            self.function_message = message["points"]
+from volttrontesting.utils.platformwrapper import start_wrapper_platform, PlatformWrapper
 
 
 @pytest.fixture(scope="module")
-def agent(request, volttron_instance_module_web):
-    """Build the test agent for rpc call."""
+def setup_instances():
 
-    control_agent = ControlAgent(volttron_instance_module_web)
-    test_agent = control_agent.agent
+    inst1 = PlatformWrapper()
+    inst2 = PlatformWrapper()
 
-    print('Installing DNP3Agent')
-    agent_id = control_agent.install_agent(agent_dir=get_services_core("DNP3Agent"),
-                                           config_file=MESA_AGENT_CONFIG,
-                                           vip_identity=MESA_AGENT_ID,
-                                           start=True)
+    start_wrapper_platform(inst1)
+    start_wrapper_platform(inst2)
 
-    global web_address
-    web_address = control_agent.get_web_address()
+    yield inst1, inst2
 
-    control_agent.subscribe_function()
-
-    def stop():
-        """Stop test agent."""
-        control_agent.stop_agent(agent_id)
-        test_agent.core.stop()
-
-    gevent.sleep(3)        # wait for agents and devices to start
-
-    request.addfinalizer(stop)
-
-    return test_agent
+    inst1.shutdown_platform()
+    inst2.shutdown_platform()
 
 
-@pytest.fixture(scope="module")
-def run_master():
-    return MesaMasterApplication(local_ip=MESA_AGENT_CONFIG['local_ip'],
-                                 port=MESA_AGENT_CONFIG['port'])
+@pytest.mark.wrapper
+def test_can_install_listener(volttron_instance):
+    clear_messages()
+    vi = volttron_instance
+    assert vi is not None
+    assert vi.is_running()
+
+    auuid = vi.install_agent(agent_dir='/Users/anhnguyen/repos/kisensum-volttron/volttron/services/core/DNP3Agent/tests/ControlAgent',
+                             start=False)
+    assert auuid is not None
+    started = vi.start_agent(auuid)
+    print('STARTED: ', started)
+    listening = vi.build_agent()
+    listening.vip.pubsub.subscribe(peer='pubsub',
+                                   prefix='heartbeat/controlagent',
+                                   callback=onmessage)
+    # sleep for 10 seconds and at least one heartbeat should have been
+    # published
+    # because it's set to 5 seconds.
+    time_start = time.time()
+
+    print('Awaiting heartbeat response.')
+    while not messages_contains_prefix(
+            'heartbeat/controlagent') and time.time() < time_start + 10:
+        gevent.sleep(0.2)
+
+    assert messages_contains_prefix('heartbeat/controlagent')
+
+    stopped = vi.stop_agent(auuid)
+    print('STOPPED: ', stopped)
+    removed = vi.remove_agent(auuid)
+    print('REMOVED: ', removed)
 
 
-class TestMesaAgent:
-    """Regression tests for the Mesa Agent."""
+messages = {}
 
-    @staticmethod
-    def get_point(agent, point_name):
-        """Ask DNP3Agent for a point value for a DNP3 resource."""
-        return agent.vip.rpc.call(MESA_AGENT_ID, 'get_point', point_name).get(timeout=10)
 
-    @staticmethod
-    def get_point_by_index(agent, group, index):
-        """Ask DNP3Agent for a point value for a DNP3 resource."""
-        return agent.vip.rpc.call(MESA_AGENT_ID, 'get_point_by_index', group, index).get(timeout=10)
+def onmessage(peer, sender, bus, topic, headers, message):
+    messages[topic] = {'headers': headers, 'message': message}
 
-    @staticmethod
-    def set_point(agent, point_name, value):
-        """Use DNP3Agent to set a point value for a DNP3 resource."""
-        return agent.vip.rpc.call(MESA_AGENT_ID, 'set_point', point_name, value).get(timeout=10)
 
-    @staticmethod
-    def send_points(master, send_json_path):
-        """Master loads points from json and send them to mesa agent."""
-        try:
-            master.send_function_test(func_test_path=send_json_path)
-        except Exception as e:
-            print("exception {}".format(e))
+def clear_messages():
+    global messages
+    messages = {}
 
-    @staticmethod
-    def get_value_from_master(master, point_name):
-        """Get value of the point from master after being set by test agent."""
-        try:
-            pdef = pdefs.point_named(point_name)
-            group = input_group_map[pdef.group]
-            index = pdef.index
-            return master.soe_handler.result[group][index]
-        except KeyError:
-            return None
 
-    def run_test(self, master, agent, json_file):
-        """Test get points to confirm if points is set correctly by master."""
-        send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', json_file))
-        self.send_points(master, send_json_path)
+def messages_contains_prefix(prefix):
+    global messages
+    return any(map(lambda x: x.startswith(prefix), messages.keys()))
 
-        send_json = json.load(open(send_json_path))
 
-        for point_name in send_json.keys():
-            if point_name not in ["name", "function_id", "function_name", "CurveStart-X"]:
+@pytest.mark.wrapper
+def test_can_publish(volttron_instance):
+    global messages
+    clear_messages()
+    vi = volttron_instance
+    agent = vi.build_agent()
+    #    gevent.sleep(0)
+    agent.vip.pubsub.subscribe(peer='pubsub', prefix='test/world',
+                               callback=onmessage).get(timeout=5)
 
-                pdef = pdefs.point_named(point_name)
-
-                if pdef.type == "array":
-                    group = pdef.group
-                    index = pdef.index
-
-                    for d in send_json[point_name]:
-                        for point in pdef.array_points:
-                            assert self.get_point_by_index(agent, group, index) == d[point["name"]]
-                            index += 1
-                else:
-                    assert self.get_point(agent, point_name) == send_json[point_name]
-
-    def test_charge_discharge(self, run_master, agent):
-        """Test function charge_discharge_mode."""
-        self.run_test(run_master, agent, 'charge_discharge.json')
-
-        self.set_point(agent, "DCHD.WinTms (in)", 45)
-        assert self.get_value_from_master(run_master, "DCHD.WinTms (in)") == 45
-
-        self.set_point(agent, "Supports Charge/Discharge Mode", True)
-        assert self.get_value_from_master(run_master, "Supports Charge/Discharge Mode") is True
-
-    def test_curve(self, run_master, agent):
-        """Test function curve_function."""
-        self.run_test(run_master, agent, 'curve.json')
+    agent_publisher = vi.build_agent()
+    #    gevent.sleep(0)
+    agent_publisher.vip.pubsub.publish(peer='pubsub', topic='test/world',
+                                       message='got data')
+    # sleep so that the message bus can actually do some work before we
+    # eveluate the global messages.
+    gevent.sleep(0.1)
+    assert messages['test/world']['message'] == 'got data'

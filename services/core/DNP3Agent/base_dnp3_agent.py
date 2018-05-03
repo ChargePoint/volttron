@@ -496,8 +496,10 @@ class PointDefinitions(object):
         try:
             with open(point_definitions_path, 'r') as f:
                 self._points = {}           # If they're already loaded, force a reload.
-                # Filter comments out of the json before loading it.
-                for element in json.loads(_comment_re.sub(_repl, f.read())):
+                # Filter comments out of the file's contents before loading it as JSON.
+                filtered_file_contents = _comment_re.sub(_repl, f.read())
+                json_file_contents = json.loads(filtered_file_contents)
+                for element in json_file_contents:
                     point_def = PointDefinition(element)
                     if point_def.array_points is not None:
                         self._expand_array_points(point_def)

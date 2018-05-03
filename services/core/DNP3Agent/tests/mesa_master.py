@@ -51,7 +51,7 @@ class MesaMasterApplication(DNP3Master):
             if not pdef:
                 _log.error('Unable to find PointDefinition for {}'.format(step.name))
             else:
-                # @todo Use each Step's fcodes to decide how it should be sent (select vs. operate).
+                # To do here: Use each Step's fcodes to send select vs. operate -- see how send_function_test does this.
                 if pdef.point_type == POINT_TYPE_ANALOG_OUTPUT:
                     _log.debug('Sending 10 for {} index {} ({})'.format(POINT_TYPE_ANALOG_OUTPUT, pdef.index, pdef.name))
                     self.write_integer_value(int(pdef.index), 10)
@@ -79,7 +79,6 @@ class MesaMasterApplication(DNP3Master):
             # Send an x-value and a y-value for each point in the curve.
             x_index = x_start_index + i * 2
             y_index = y_start_index + i * 2
-            # @todo This does a bit of silly arithmetic just to create some variation in the X/Y values.
             x_value = (x_index % (i + 10)) / float(x_index)
             y_value = (y_index % (i + 10)) / float(y_index)
             self.write_floating_point_value(x_index, x_value)

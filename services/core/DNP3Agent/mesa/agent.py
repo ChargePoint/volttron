@@ -419,12 +419,16 @@ class MesaAgent(BaseDNP3Agent):
         :param value: A value to send (unwrapped simple data type, or else a list/array).
         """
         if type(value) == list:
-            # The value is an array. Break it down into its constituent points, and send each one.
-            for point_dict in value:
+            # The value is an array. Break it down into its constituent points, and send each one separately.
+            col_count = len(point_def.array_points)
+            cols_by_name = {pt['name']: col for col, pt in enumerate(point_def.array_points)}
+            for row_number, point_dict in enumerate(value):
                 for pt_name, pt_val in point_dict.iteritems():
-                    self._apply_point_update(self.get_point_named(pt_name), pt_val)
+                    column_number = cols_by_name[pt_name]
+                    pt_index = point_def.index + col_count * row_number + column_number
+                    self._apply_point_update(point_def, pt_index, pt_val)
         else:
-            self._apply_point_update(point_def, value)
+            self._apply_point_update(point_def, point_def.index, value)
 
             # Side-effect: If it's a Support point for a Function, update the Function's "supported" property.
             func = self.function_definitions.support_point_names().get(point_def.name, None)
@@ -433,21 +437,21 @@ class MesaAgent(BaseDNP3Agent):
                 func.supported = value
 
     @staticmethod
-    def _apply_point_update(point_def, value):
+    def _apply_point_update(point_def, point_index, value):
         """
             Set an input point in the outstation database. This may send its PointValue to the Master.
 
         :param point_def: A PointDefinition.
+        :param point_index: A numeric index for the point.
         :param value: A value to send (unwrapped, simple data type).
         """
         point_type = PointDefinition.point_type_for_group(point_def.group)
-        point_index = point_def.index
         if point_type == POINT_TYPE_ANALOG_INPUT:
             wrapped_val = opendnp3.Analog(float(value))
         elif point_type == POINT_TYPE_BINARY_INPUT:
             wrapped_val = opendnp3.Binary(value)
         else:
-            # @todo Support data types beyond Analog and Binary.
+            # @todo Also support data types other than Analog and Binary.
             raise DNP3Exception('Unsupported point type {}'.format(point_type))
         if wrapped_val is not None:
             DNP3Outstation.apply_update(wrapped_val, point_index)
@@ -580,7 +584,7 @@ class FunctionDefinition(object):
             # Set supported to False if the Function has a defined support_point_name -- the Control Agent must set it.
             self.supported = not self.support_point_name
             # @todo Hard-coded temporarily for test purposes.
-            self.supported = True
+            # self.supported = True
         except AttributeError as err:
             raise AttributeError('Error creating FunctionDefinition {}, err={}'.format(self.name, err))
 

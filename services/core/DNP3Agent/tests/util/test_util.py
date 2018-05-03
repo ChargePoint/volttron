@@ -6,7 +6,7 @@ from mesa import agent as MA
 # FUNCTION_DEF_PATH = "/Users/natehill/repos/volttron/services/core/DNP3Agent/mesa_functions.yaml"
 # SAMPLE_FUNC_TEST_PATH = "/Users/natehill/repos/volttron/services/core/DNP3Agent/tests/nate/sample_json/format.config"
 
-FUNCTION_DEF_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'mesa_functions.yaml'))
+FUNCTION_DEF_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'mesa_functions.yaml'))
 SAMPLE_FUNC_TEST_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'sample_json', 'format.config'))
 
 

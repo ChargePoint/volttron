@@ -161,8 +161,16 @@ class TestMesaAgent:
         except KeyError:
             return None
 
-    def run_test(self, master, agent, json_file):
+    def run_test(self, master, agent, json_file, support_point='', fail_state=False):
         """Test get points to confirm if points is set correctly by master."""
+
+        if support_point:
+            if fail_state:
+                self.set_point(agent, support_point, False)
+            else:
+                self.set_point(agent, support_point, True)
+            time.sleep(1)
+
         send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', json_file))
         self.send_points(master, send_json_path)
 
@@ -179,28 +187,42 @@ class TestMesaAgent:
 
                     for d in send_json[point_name]:
                         for point in pdef.array_points:
-                            assert self.get_point_by_index(agent, group, index) == d[point["name"]]
+                            get_point = self.get_point_by_index(agent, group, index)
+                            if fail_state:
+                                assert get_point == None
+                            else:
+                                assert get_point == d[point["name"]]
                             index += 1
                 else:
-                assert self.get_point(agent, point_name) == send_json[point_name]
+                    get_point = self.get_point(agent, point_name)
+                    if fail_state:
+                        assert get_point == None
+                    else:
+                        assert get_point == send_json[point_name]
+
+    def test_fail_charge_discharge(self, run_master, agent):
+        """Do not set the support point to True"""
+        self.run_test(run_master, agent, 'charge_discharge.json', "Supports Charge/Discharge Mode", True)
 
     def test_charge_discharge(self, run_master, agent):
         """Test function charge_discharge_mode."""
-        self.run_test(run_master, agent, 'charge_discharge.json')
+
+        self.run_test(run_master, agent, 'charge_discharge.json', "Supports Charge/Discharge Mode")
 
         self.set_point(agent, "DCHD.WinTms (in)", 45)
         assert self.get_value_from_master(run_master, "DCHD.WinTms (in)") == 45
-
-        self.set_point(agent, "Supports Charge/Discharge Mode", True)
-        assert self.get_value_from_master(run_master, "Supports Charge/Discharge Mode") is True
 
     def test_curve(self, run_master, agent):
         """Test function curve_function."""
         self.run_test(run_master, agent, 'curve.json')
 
+    # def test_inverter(self, run_master, agent):
+    #     """Test inverter function"""
+    #     self.run_test(run_master, agent, 'inverter.json')
 
-send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'curve.json'))
-TestMesaAgent.send_points(run_master(), send_json_path)
+
+# send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'inverter.json'))
+# TestMesaAgent.send_points(run_master(), send_json_path)
 
 # master = run_master()
 # send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'charge_discharge.json'))

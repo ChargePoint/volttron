@@ -47,14 +47,23 @@ TEST_GET_POINT_NAME2 = 'DCHD.VArAct (out)'
 TEST_SET_POINT_NAME = 'DCHD.WTgt (in)'
 TEST_SET_SUPPORT_POINT_NAME = 'Supports Charge/Discharge Mode'
 TEST_DEVICE_ARRAY = {
-    "Inverter active power output - Present Active Power output level": [
-        {"Inverter active power output - Present Active Power output level": 302},
-        {"Inverter reactive output - Present reactive power output level": 100}
+    "Inverter power readings": [
+        {
+            "Inverter active power output - Present Active Power output level": 302,
+            "Inverter reactive output - Present reactive power output level": 100
+        }
+    ]
+}
+TEST_INPUT_CURVE = {
+    "Input CurveStart-X": [
+        {"Input Curve-X": 30, "Input Curve-Y": 130},
+        {"Input Curve-X": 31, "Input Curve-Y": 131},
+        {"Input Curve-X": 32, "Input Curve-Y": 132}
     ]
 }
 
 
-def dnp3_test_agent(config_path, **kwargs):
+def mesa_test_agent(config_path, **kwargs):
     """
         Parse the TestAgent configuration file and return an instance of
         the agent that has been created using that configuration.
@@ -162,6 +171,7 @@ class MesaTestAgent(Agent):
         self.set_point(TEST_SET_POINT_NAME, 10)
         self.set_point(TEST_SET_SUPPORT_POINT_NAME, True)
         self.set_points(TEST_DEVICE_ARRAY)
+        self.set_points(TEST_INPUT_CURVE)
 
     def get_point(self, point_name):
         """Get a single metric from the MesaAgent via an RPC call."""
@@ -186,7 +196,7 @@ class MesaTestAgent(Agent):
 
 def main():
     """Start the agent."""
-    utils.vip_main(dnp3_test_agent, identity='dnp3testagent', version=__version__)
+    utils.vip_main(mesa_test_agent, identity='mesa_test_agent', version=__version__)
 
 
 if __name__ == '__main__':

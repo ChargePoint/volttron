@@ -51,7 +51,7 @@ class MesaMasterApplication(DNP3Master):
             if not pdef:
                 _log.error('Unable to find PointDefinition for {}'.format(step.name))
             else:
-                # @todo Use each Step's fcodes to decide how it should be sent (select vs. operate).
+                # To do here: Use each Step's fcodes to send select vs. operate -- see how send_function_test does this.
                 if pdef.point_type == POINT_TYPE_ANALOG_OUTPUT:
                     _log.debug('Sending 10 for {} index {} ({})'.format(POINT_TYPE_ANALOG_OUTPUT, pdef.index, pdef.name))
                     self.write_integer_value(int(pdef.index), 10)
@@ -79,7 +79,6 @@ class MesaMasterApplication(DNP3Master):
             # Send an x-value and a y-value for each point in the curve.
             x_index = x_start_index + i * 2
             y_index = y_start_index + i * 2
-            # @todo This does a bit of silly arithmetic just to create some variation in the X/Y values.
             x_value = (x_index % (i + 10)) / float(x_index)
             y_value = (y_index % (i + 10)) / float(y_index)
             self.write_floating_point_value(x_index, x_value)
@@ -112,19 +111,16 @@ class MesaMasterApplication(DNP3Master):
             OPERATE: self.send_select_and_operate_command,
         }
 
-        def send_array(index, json_array):
+        def send_array(index, json_array, point_def):
 
+            array_points = point_def.array_points
             for d in json_array:
-                command = COMMAND_TYPES[DIRECT_OPERATE]
-                output_type_x = OUTPUT_TYPES[type(d["Curve-X"])]
-                output_type_y = OUTPUT_TYPES[type(d["Curve-Y"])]
-                command(output_type_x(d["Curve-X"]), index)
-                index += 1
-                time.sleep(1)
-                command(output_type_y(d["Curve-Y"]), index)
-                index += 1
-                time.sleep(1)
-                print("index is {}".format(index))
+                for array_point in array_points:
+                    command = COMMAND_TYPES[DIRECT_OPERATE]
+                    output_type = OUTPUT_TYPES[type(d[array_point["name"]])]  # or array_point['name']
+                    command(output_type(d[array_point["name"]]), index)
+                    index += 1
+                    time.sleep(1)
 
         point_def_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'opendnp3_data.config'))
         pdefs = PointDefinitions(point_def_path)
@@ -145,7 +141,7 @@ class MesaMasterApplication(DNP3Master):
 
             except (KeyError, IndexError):
                 if type(point_value) == list:  # or check if the type is array
-                    send_array(pdef.index, point_value)
+                    send_array(pdef.index, point_value, pdef)
                     continue
                 else:
                     raise Exception("Unrecognized value type or command.")

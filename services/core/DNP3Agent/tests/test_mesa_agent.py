@@ -94,6 +94,14 @@ def clear_messages():
     global messages
     messages = {}
 
+
+TRIM_DICT_KEYS = ["name", "function_id", "function_name"]
+
+
+def trim_dictionary(d):
+    return {k: v for k, v in d.items() if k not in TRIM_DICT_KEYS}
+
+
 @pytest.fixture(scope="module")
 def agent(request, volttron_instance_module_web):
     """Build the test agent for rpc call."""
@@ -183,9 +191,8 @@ class TestMesaAgent:
         send_json = json.load(open(send_json_path))
         self.send_points(master, send_json)
 
-
         for point_name in send_json.keys():
-            if point_name not in ["name", "function_id", "function_name"]:
+            if point_name not in TRIM_DICT_KEYS:
 
                 pdef = pdefs.point_named(point_name)
 
@@ -211,7 +218,7 @@ class TestMesaAgent:
         if fail_state:
             assert messages == {}
         else:
-            assert messages['mesa/function']['message']['points'].items() <= send_json.items()
+            assert messages['mesa/function']['message']['points'].items() == trim_dictionary(send_json)
             clear_messages()
 
     def test_fail_charge_discharge(self, run_master, agent):
@@ -235,8 +242,8 @@ class TestMesaAgent:
         self.run_test(run_master, agent, 'inverter.json')
 
 
-# send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'inverter.json'))
-# TestMesaAgent.send_points(run_master(), send_json_path)
+send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'selector_block_1.json'))
+TestMesaAgent.send_points(run_master(), json.load(open(send_json_path)))
 
 # master = run_master()
 # send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'charge_discharge.json'))

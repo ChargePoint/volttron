@@ -34,7 +34,7 @@ class ControlAgent(Agent):
 
     def print_function_json(self, peer, sender, bus, topic, headers, message):
         print self.function_message
-    #     print self.get_point("DCHD.WinTms (out)")
+        print self.get_point("DCHD.WinTms (out)")
 
     def set_point(self, point_name, point_value):
         return self.vip.rpc.call('mesaagent', 'set_point', point_name, point_value).get(timeout=10)

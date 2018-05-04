@@ -3,7 +3,6 @@
     "function_id": "LN DCHD",
     "function_name": "charge_discharge_mode",
     "DCHD.WinTms (out)": 10,
-    "DCHD.RmpTms (out)": 12,
     "DCHD.RevtTms (out)": 13,
     "DCHD.WTgt (out)": 14,
     "DCHD.RmpUpRte (out)": 15,

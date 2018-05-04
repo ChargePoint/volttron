@@ -35,7 +35,7 @@ functions:
         action: "echo"
       - step_number: 2
         point_name: "DCHD.RmpTms (out)"
-        optional: "O"
+        optional: "M"
         fcodes: []
         response: "DCHD.RmpTms (in)"
         action: "echo"

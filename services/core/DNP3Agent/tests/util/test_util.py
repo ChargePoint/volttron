@@ -10,6 +10,10 @@ FUNCTION_DEF_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'
 SAMPLE_FUNC_TEST_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'sample_json', 'format.config'))
 
 
+class FunctionTestException(Exception):
+    pass
+
+
 class FunctionTest(object):
 
     def __init__(self, **kwargs):
@@ -56,9 +60,9 @@ class FunctionTest(object):
         if f_def:
             m_steps = self.get_mandatory_steps(f_def)
         else:
-            raise Exception("Function definition not found")
+            raise FunctionTestException("Function definition not found")
         if not all(step in self.ftest.keys() for step in m_steps):
-            raise Exception("Function Test missing mandatory steps")
+            raise FunctionTestException("Function Test missing mandatory steps")
         return True
 
     def points_resolve(self, func_def):
@@ -69,7 +73,7 @@ class FunctionTest(object):
         :return:
         """
         if not all(step_name in [step.name for step in func_def.steps] for step_name in self.points.keys()):
-            raise Exception("Not all points resolve")
+            raise FunctionTestException("Not all points resolve")
         return True
 
     def is_valid(self):
@@ -83,13 +87,13 @@ class FunctionTest(object):
 
         f_def = self.get_function_def()
         if not f_def:
-            raise Exception("Function definition not found")
+            raise FunctionTestException("Function definition not found")
         try:
             has_steps = self.has_mandatory_steps(f_def)
             pts_resolve = self.points_resolve(f_def)
             return True
         except Exception as e:
-            raise Exception("Validation error: {}".format(e.message))
+            raise FunctionTestException("Validation error: {}".format(e.message))
 
 
 

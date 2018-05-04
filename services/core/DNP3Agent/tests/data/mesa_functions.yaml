@@ -257,6 +257,5 @@ functions:
     steps:
       - step_number: 1
         point_name: "Inverter active power output - Present Active Power output level"
-        optional: "M"
-        action: "publish_and_respond"
-        response: "Response Point"
+        optional: "O"
+        action: "publish"

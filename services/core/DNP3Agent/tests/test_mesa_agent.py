@@ -38,7 +38,6 @@ from pydnp3 import asiodnp3, asiopal, opendnp3, openpal
 from volttron.platform import get_services_core
 from services.core.DNP3Agent.tests.mesa_master import MesaMasterApplication
 from services.core.DNP3Agent.base_dnp3_agent import PointDefinitions
-from services.core.DNP3Agent.tests.MesaTestAgent.testagent.agent import MesaTestAgent
 
 FILTERS = opendnp3.levels.NORMAL | opendnp3.levels.ALL_COMMS
 HOST = "127.0.0.1"
@@ -84,12 +83,19 @@ MESA_TEST_AGENT_CONFIG = {
 }
 
 
+def onmessage(peer, sender, bus, topic, headers, message):
+    messages[topic] = {'headers': headers, 'message': message}
+
+
+def clear_messages():
+    global messages
+    messages = {}
+
 @pytest.fixture(scope="module")
 def agent(request, volttron_instance_module_web):
     """Build the test agent for rpc call."""
 
     test_agent = volttron_instance_module_web.build_agent()
-    # mesa_test_agent = volttron_instance_module_web.build_agent(agent_class=MesaTestAgent)
 
     print('Installing DNP3Agent')
     agent_id = volttron_instance_module_web.install_agent(agent_dir=get_services_core("DNP3Agent"),
@@ -97,14 +103,13 @@ def agent(request, volttron_instance_module_web):
                                                           vip_identity=MESA_AGENT_ID,
                                                           start=True)
 
-    # print('Installing control agent')
-    # second_agent_id = volttron_instance_module_web.install_agent(agent_dir=get_services_core("DNP3Agent/MesaTestAgent"),
-    #                                                              config_file=MESA_TEST_AGENT_CONFIG,
-    #                                                              vip_identity='mesaagent_test',
-    #                                                              start=True)
-
     global web_address
     web_address = volttron_instance_module_web.bind_web_address
+
+    # Subscribe to MESA functions/points
+    test_agent.vip.pubsub.subscribe(peer='pubsub',
+                                    prefix='mesa/function',
+                                    callback=onmessage)
 
     def stop():
         """Stop test agent."""
@@ -212,9 +217,49 @@ class TestMesaAgent:
         self.set_point(agent, "DCHD.WinTms (in)", 45)
         assert self.get_value_from_master(run_master, "DCHD.WinTms (in)") == 45
 
+        assert messages['mesa/function']['message']['points'] == {
+            "DCHD.WinTms (out)": 10,
+            "DCHD.RmpTms (out)": 12,
+            "DCHD.RevtTms (out)": 13,
+            "DCHD.WTgt (out)": 14,
+            "DCHD.RmpUpRte (out)": 15,
+            "DCHD.RmpDnRte (out)": 16,
+            "DCHD.ChaRmpUpRte (out)": 17,
+            "DCHD.ChaRmpDnRte (out)": 18,
+            "DCHD.ModPrty (out)": 19,
+            "DCHD.VArAct (out)": 20,
+            "DCHD.ModEna": True
+        }
+
+        clear_messages()
+
     def test_curve(self, run_master, agent):
         """Test function curve_function."""
         self.run_test(run_master, agent, 'curve.json')
+
+        assert messages['mesa/function']['message']['points'] == {
+            "Curve Edit Selector": 2,
+            "Curve Mode Type": 40,
+            "Curve Time Window": 5000,
+            "Curve Ramp Time": 24,
+            "Curve Revert Time": 51,
+            "Curve Maximum Number of Points": 671,
+            "Independent (X-Value) Units for Curve": 51,
+            "Dependent (Y-Value) Units for Curve": 625,
+            "Curve Time Constant": 612,
+            "Curve Decreasing Max Ramp Rate": 331,
+            "Curve Increasing Ramp Rate": 451,
+            "CurveStart-X": [
+                {"Curve-X": 111, "Curve-Y": 2},
+                {"Curve-X": 3, "Curve-Y": 4},
+                {"Curve-X": 5, "Curve-Y": 6},
+                {"Curve-X": 7, "Curve-Y": 8},
+                {"Curve-X": 9, "Curve-Y": 10}
+            ],
+            "Curve Number of Points": 5
+        }
+
+        clear_messages()
 
     # def test_inverter(self, run_master, agent):
     #     """Test inverter function"""

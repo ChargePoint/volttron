@@ -122,7 +122,7 @@ class MesaMasterApplication(DNP3Master):
                     index += 1
                     time.sleep(1)
 
-        point_def_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'opendnp3_data.config'))
+        point_def_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'opendnp3_data.config'))
         pdefs = PointDefinitions(point_def_path)
 
         func_def = ftest.get_function_def()

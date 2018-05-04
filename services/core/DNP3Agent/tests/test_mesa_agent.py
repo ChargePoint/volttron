@@ -184,7 +184,7 @@ class TestMesaAgent:
         send_json = json.load(open(send_json_path))
 
         for point_name in send_json.keys():
-            if point_name not in ["name", "function_id", "function_name", "CurveStart-X"]:
+            if point_name not in ["name", "function_id", "function_name"]:
 
                 pdef = pdefs.point_named(point_name)
 
@@ -207,6 +207,12 @@ class TestMesaAgent:
                     else:
                         assert get_point == send_json[point_name]
 
+        if fail_state:
+            assert messages == {}
+        else:
+            assert messages['mesa/function']['message']['points'].items() <= send_json.items()
+            clear_messages()
+
     def test_fail_charge_discharge(self, run_master, agent):
         """Do not set the support point to True"""
         self.run_test(run_master, agent, 'charge_discharge.json', "Supports Charge/Discharge Mode", True)
@@ -219,53 +225,53 @@ class TestMesaAgent:
         self.set_point(agent, "DCHD.WinTms (in)", 45)
         assert self.get_value_from_master(run_master, "DCHD.WinTms (in)") == 45
 
-        assert messages['mesa/function']['message']['points'] == {
-            "DCHD.WinTms (out)": 10,
-            "DCHD.RmpTms (out)": 12,
-            "DCHD.RevtTms (out)": 13,
-            "DCHD.WTgt (out)": 14,
-            "DCHD.RmpUpRte (out)": 15,
-            "DCHD.RmpDnRte (out)": 16,
-            "DCHD.ChaRmpUpRte (out)": 17,
-            "DCHD.ChaRmpDnRte (out)": 18,
-            "DCHD.ModPrty (out)": 19,
-            "DCHD.VArAct (out)": 20,
-            "DCHD.ModEna": True
-        }
-
-        clear_messages()
+        # assert messages['mesa/function']['message']['points'] == {
+        #     "DCHD.WinTms (out)": 10,
+        #     "DCHD.RmpTms (out)": 12,
+        #     "DCHD.RevtTms (out)": 13,
+        #     "DCHD.WTgt (out)": 14,
+        #     "DCHD.RmpUpRte (out)": 15,
+        #     "DCHD.RmpDnRte (out)": 16,
+        #     "DCHD.ChaRmpUpRte (out)": 17,
+        #     "DCHD.ChaRmpDnRte (out)": 18,
+        #     "DCHD.ModPrty (out)": 19,
+        #     "DCHD.VArAct (out)": 20,
+        #     "DCHD.ModEna": True
+        # }
+        #
+        # clear_messages()
 
     def test_curve(self, run_master, agent):
         """Test function curve_function."""
         self.run_test(run_master, agent, 'curve.json')
 
-        assert messages['mesa/function']['message']['points'] == {
-            "Curve Edit Selector": 2,
-            "Curve Mode Type": 40,
-            "Curve Time Window": 5000,
-            "Curve Ramp Time": 24,
-            "Curve Revert Time": 51,
-            "Curve Maximum Number of Points": 671,
-            "Independent (X-Value) Units for Curve": 51,
-            "Dependent (Y-Value) Units for Curve": 625,
-            "Curve Time Constant": 612,
-            "Curve Decreasing Max Ramp Rate": 331,
-            "Curve Increasing Ramp Rate": 451,
-            "CurveStart-X": [
-                {"Curve-X": 111, "Curve-Y": 2},
-                {"Curve-X": 3, "Curve-Y": 4},
-                {"Curve-X": 5, "Curve-Y": 6},
-                {"Curve-X": 7, "Curve-Y": 8},
-                {"Curve-X": 9, "Curve-Y": 10}
-            ],
-            "Curve Number of Points": 5
-        }
+        # assert messages['mesa/function']['message']['points'] == {
+        #     "Curve Edit Selector": 2,
+        #     "Curve Mode Type": 40,
+        #     "Curve Time Window": 5000,
+        #     "Curve Ramp Time": 24,
+        #     "Curve Revert Time": 51,
+        #     "Curve Maximum Number of Points": 671,
+        #     "Independent (X-Value) Units for Curve": 51,
+        #     "Dependent (Y-Value) Units for Curve": 625,
+        #     "Curve Time Constant": 612,
+        #     "Curve Decreasing Max Ramp Rate": 331,
+        #     "Curve Increasing Ramp Rate": 451,
+        #     "CurveStart-X": [
+        #         {"Curve-X": 111, "Curve-Y": 2},
+        #         {"Curve-X": 3, "Curve-Y": 4},
+        #         {"Curve-X": 5, "Curve-Y": 6},
+        #         {"Curve-X": 7, "Curve-Y": 8},
+        #         {"Curve-X": 9, "Curve-Y": 10}
+        #     ],
+        #     "Curve Number of Points": 5
+        # }
+        #
+        # clear_messages()
 
-        clear_messages()
-
-    # def test_inverter(self, run_master, agent):
-    #     """Test inverter function"""
-    #     self.run_test(run_master, agent, 'inverter.json')
+    def test_inverter(self, run_master, agent):
+        """Test inverter function"""
+        self.run_test(run_master, agent, 'inverter.json')
 
 
 # send_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'sample_json', 'inverter.json'))

@@ -1,14 +1,12 @@
 from __future__ import absolute_import
 
 import sys
-import gevent
 
 from volttron.platform.vip.agent import Agent, Core
 from volttron.platform.agent import utils
-from volttrontesting.utils.platformwrapper import PlatformWrapper
 
 DEFAULT_AGENTID = "controlagent"
-DEFAULT_HEARTBEAT_PERIOD = 2
+DEFAULT_HEARTBEAT_PERIOD = 5
 
 
 class ControlAgent(Agent):
@@ -26,14 +24,16 @@ class ControlAgent(Agent):
     def onstart(self, sender, **kwargs):
         self.vip.heartbeat.start_with_period(DEFAULT_HEARTBEAT_PERIOD)
         self.vip.pubsub.subscribe('pubsub', 'mesa/function', self.get_function_json)
-        # self.vip.pubsub.subscribe('pubsub', '', self.print_function_json)
+        self.vip.pubsub.subscribe('pubsub', '', self.print_function_json)
+
+        self.set_point("Supports Charge/Discharge Mode", True)
 
     def get_function_json(self, peer, sender, bus, topic, headers, message):
         if 'points' in message:
             self.function_message = message["points"]
 
-    # def print_function_json(self, peer, sender, bus, topic, headers, message):
-    #     print self.function_message
+    def print_function_json(self, peer, sender, bus, topic, headers, message):
+        print self.function_message
     #     print self.get_point("DCHD.WinTms (out)")
 
     def set_point(self, point_name, point_value):

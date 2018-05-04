@@ -82,6 +82,8 @@ MESA_TEST_AGENT_CONFIG = {
     "outstation_status_topic": "mesa/outstation_status"
 }
 
+messages = {}
+
 
 def onmessage(peer, sender, bus, topic, headers, message):
     messages[topic] = {'headers': headers, 'message': message}

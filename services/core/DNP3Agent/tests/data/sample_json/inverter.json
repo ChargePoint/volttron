@@ -71,5 +71,6 @@
             "Inverter DC voltage between DER system and inverter - high threshold": 65,
             "Inverter DC voltage between DER system and inverter - low threshold": 66
             }
-  ]
+  ],
+  "Array Number of Points": 2
 }

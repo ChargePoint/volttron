@@ -38,6 +38,7 @@ from pydnp3 import asiodnp3, asiopal, opendnp3, openpal
 from volttron.platform import get_services_core
 from services.core.DNP3Agent.tests.mesa_master import MesaMasterApplication
 from services.core.DNP3Agent.base_dnp3_agent import PointDefinitions
+from services.core.DNP3Agent.tests.util.function_test import FunctionTestException
 
 FILTERS = opendnp3.levels.NORMAL | opendnp3.levels.ALL_COMMS
 HOST = "127.0.0.1"

@@ -10,7 +10,7 @@ from services.core.DNP3Agent.mesa.agent import FunctionDefinitions
 from services.core.DNP3Agent.base_dnp3_agent import PointDefinition, PointDefinitions
 from services.core.DNP3Agent.base_dnp3_agent import POINT_TYPE_ANALOG_OUTPUT, POINT_TYPE_BINARY_OUTPUT
 from services.core.DNP3Agent.base_dnp3_agent import DIRECT_OPERATE, SELECT, OPERATE
-from services.core.DNP3Agent.tests.util.test_util import FunctionTest
+from services.core.DNP3Agent.tests.util.function_test import FunctionTest
 
 stdout_stream = logging.StreamHandler(sys.stdout)
 stdout_stream.setFormatter(logging.Formatter('%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s'))

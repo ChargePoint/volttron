@@ -93,12 +93,4 @@ class FunctionTest(object):
             pts_resolve = self.points_resolve(f_def)
             return True
         except Exception as e:
-            raise FunctionTestException("Validation error: {}".format(e.message))
-
-
-
-
-
-
-
-
+            raise FunctionTestException("Validation Error: {}".format(e.message))

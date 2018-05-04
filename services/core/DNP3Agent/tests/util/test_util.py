@@ -17,7 +17,7 @@ class FunctionTest(object):
         func_test_path = kwargs.pop('func_test_path', SAMPLE_FUNC_TEST_PATH)
 
         if func_test_json:
-            self.ftest = json.loads(func_test_json)
+            self.ftest = func_test_json
         else:
             self.ftest = json.load(open(func_test_path))
 

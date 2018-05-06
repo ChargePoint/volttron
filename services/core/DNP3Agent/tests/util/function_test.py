@@ -1,7 +1,7 @@
 import json
 import os
 
-from mesa import agent as MA
+from dnp3.mesa import agent as MA
 
 # FUNCTION_DEF_PATH = "/Users/natehill/repos/volttron/services/core/DNP3Agent/mesa_functions.yaml"
 # SAMPLE_FUNC_TEST_PATH = "/Users/natehill/repos/volttron/services/core/DNP3Agent/tests/nate/sample_json/format.config"

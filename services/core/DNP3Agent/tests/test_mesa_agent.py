@@ -27,18 +27,17 @@
 # favoring by eightminuteenergy or Kisensum.
 # }}}
 
-import gevent
-import pytest
 import json
 import os
 import time
 
-from pydnp3 import asiodnp3, asiopal, opendnp3, openpal
+import gevent
+import pytest
+from pydnp3 import opendnp3
 
-from volttron.platform import get_services_core
+from services.core.DNP3Agent.dnp3.base_dnp3_agent import PointDefinitions
 from services.core.DNP3Agent.tests.mesa_master import MesaMasterApplication
-from services.core.DNP3Agent.base_dnp3_agent import PointDefinitions
-from services.core.DNP3Agent.tests.util.function_test import FunctionTestException
+from volttron.platform import get_services_core
 
 FILTERS = opendnp3.levels.NORMAL | opendnp3.levels.ALL_COMMS
 HOST = "127.0.0.1"
@@ -102,6 +101,19 @@ def trim_dictionary(d):
     return {k: v for k, v in d.items() if k not in TRIM_DICT_KEYS}
 
 
+def dict_compare(source_dict, target_dict):
+    """Return true if the values for all keys in dource_dict
+       match the values in target_dict.
+
+       Ignores keys in target_dict that are not in source_dict.
+    """
+    for k, v in source_dict.iteritems():
+        if v != target_dict.get(k, None):
+            print("Compare fails on {} <> {}".format(v, target_dict.get(k, None)))
+            return False
+    return True
+
+
 @pytest.fixture(scope="module")
 def agent(request, volttron_instance_module_web):
     """Build the test agent for rpc call."""
@@ -117,7 +129,7 @@ def agent(request, volttron_instance_module_web):
     global web_address
     web_address = volttron_instance_module_web.bind_web_address
 
-    # Subscribe to MESA functions/points
+    # Subscribe to MESA functionstest/points
     test_agent.vip.pubsub.subscribe(peer='pubsub',
                                     prefix='mesa/function',
                                     callback=onmessage)
@@ -177,6 +189,7 @@ class TestMesaAgent:
         except KeyError:
             return None
 
+
     def run_test(self, master, agent, json_file, support_point='', fail_state=False):
         """Test get points to confirm if points is set correctly by master."""
 
@@ -218,7 +231,10 @@ class TestMesaAgent:
         if fail_state:
             assert messages == {}
         else:
-            assert messages['mesa/function']['message']['points'].items() == trim_dictionary(send_json)
+            print(messages['mesa/function']['message']['points'])
+            print('-'*40)
+            print(send_json)
+            assert dict_compare(messages['mesa/function']['message']['points'], send_json)
             clear_messages()
 
     def test_fail_charge_discharge(self, run_master, agent):

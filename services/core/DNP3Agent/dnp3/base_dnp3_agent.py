@@ -39,11 +39,10 @@ import re
 
 from pydnp3 import opendnp3
 
+from services.core.DNP3Agent.dnp3.outstation import DNP3Outstation
 from volttron.platform.agent import utils
 from volttron.platform.messaging import headers
-from volttron.platform.vip.agent import Agent, RPC
-
-from outstation import DNP3Outstation
+from volttron.platform.vip.agent import Agent
 
 DEFAULT_POINT_TOPIC = 'dnp3/point'
 DEFAULT_LOCAL_IP = "0.0.0.0"

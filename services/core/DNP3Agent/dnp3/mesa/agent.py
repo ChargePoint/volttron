@@ -30,19 +30,18 @@ import argparse
 import logging
 import os
 import sys
-import yaml
 
+import yaml
 from pydnp3 import opendnp3
 
+from services.core.DNP3Agent.dnp3.base_dnp3_agent import BaseDNP3Agent, DNP3Exception
+from services.core.DNP3Agent.dnp3.base_dnp3_agent import DEFAULT_LOCAL_IP, DEFAULT_PORT
+from services.core.DNP3Agent.dnp3.base_dnp3_agent import POINT_TYPE_ANALOG_INPUT, POINT_TYPE_ANALOG_OUTPUT
+from services.core.DNP3Agent.dnp3.base_dnp3_agent import POINT_TYPE_BINARY_INPUT, POINT_TYPE_BINARY_OUTPUT
+from services.core.DNP3Agent.dnp3.base_dnp3_agent import PointDefinitions, PointDefinition, PointValue
+from services.core.DNP3Agent.dnp3.outstation import DNP3Outstation
 from volttron.platform.agent import utils
 from volttron.platform.vip.agent import RPC
-
-from services.core.DNP3Agent.base_dnp3_agent import BaseDNP3Agent, DNP3Exception
-from services.core.DNP3Agent.base_dnp3_agent import PointDefinitions, PointDefinition, PointValue
-from services.core.DNP3Agent.base_dnp3_agent import POINT_TYPE_ANALOG_INPUT, POINT_TYPE_ANALOG_OUTPUT
-from services.core.DNP3Agent.base_dnp3_agent import POINT_TYPE_BINARY_INPUT, POINT_TYPE_BINARY_OUTPUT
-from services.core.DNP3Agent.base_dnp3_agent import DEFAULT_LOCAL_IP, DEFAULT_PORT
-from services.core.DNP3Agent.outstation import DNP3Outstation
 
 DEFAULT_POINT_TOPIC = 'mesa/point'
 DEFAULT_FUNCTION_TOPIC = 'mesa/function'
@@ -88,7 +87,7 @@ class MesaAgent(BaseDNP3Agent):
             export VOLTTRON_ROOT=<your volttron install directory>
             export MESA_ROOT=$VOLTTRON_ROOT/services/core/MesaAgent
             cd $VOLTTRON_ROOT
-            python scripts/install-agent.py -s $MESA_ROOT -i mesaagent -c $MESA_ROOT/mesaagent.config -t mesaagent -f
+            python scripts/install-mesa_agent.py -s $MESA_ROOT -i mesaagent -c $MESA_ROOT/mesaagent.config -t mesaagent -f
     """
 
     def __init__(self, point_definitions_path='', point_topic='', local_ip=None, port=None, outstation_config=None,

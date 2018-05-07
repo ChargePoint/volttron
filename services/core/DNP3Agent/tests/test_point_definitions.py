@@ -79,6 +79,10 @@ def test_function_definitions():
     print(fd)
 
     function_definitions = FunctionDefinitions(point_definitions, FUNCTION_CONFIG)
+    pdef = point_definitions.get_point_named("DCHD.WinTms (out)")
+    print(pdef)
+    print(function_definitions.step_definition_for_point(pdef))
+
 
 if __name__ == "__main__":
     test_function_definitions()

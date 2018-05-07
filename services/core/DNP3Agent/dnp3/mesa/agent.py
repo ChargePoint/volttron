@@ -172,7 +172,7 @@ class MesaAgent(BaseDNP3Agent):
         _log.debug('\tport={}'.format(self.port))
         _log.debug('\toutstation_config={}'.format(self.outstation_config))
         self.point_definitions = PointDefinitions(self.point_definitions_path)
-        self.function_definitions = FunctionDefinitions(self.function_definitions_path)
+        self.function_definitions = FunctionDefinitions(self.point_definitions, self.function_definitions_path)
         self.publish_outstation_status('starting')
         DNP3Outstation.set_agent(self)
         self.application = DNP3Outstation(self.local_ip, self.port, self.outstation_config)

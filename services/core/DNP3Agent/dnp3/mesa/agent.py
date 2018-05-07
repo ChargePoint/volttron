@@ -490,11 +490,12 @@ class MesaAgent(BaseDNP3Agent):
 class FunctionDefinitions(object):
     """In-memory repository of FunctionDefinitions."""
 
-    _functions = {}
-    _functions_by_id = {}
-    _named_step_definitions = {}
-
-    def __init__(self, function_definitions_path=None):
+    def __init__(self, point_definitions, function_definitions_path=None):
+        self._point_definitions = point_definitions
+        self._point_function_map = {}
+        self._functions = {}
+        self._functions_by_id = {}
+        self._named_step_definitions = {}
         if function_definitions_path:
             file_path = os.path.expandvars(os.path.expanduser(function_definitions_path))
             self._load_functions(file_path)
@@ -531,7 +532,7 @@ class FunctionDefinitions(object):
             with open(function_definitions_path, 'r') as f:
                 for function_def in yaml.load(f)['functions']:
                     # _log.debug('Loading {}'.format(function_def))
-                    self._add_function_to_cache(FunctionDefinition(function_def))
+                    self._add_function_to_cache(FunctionDefinition(self._point_definitions, function_def))
         except Exception as err:
             _log.error("Problem parsing {}. No FunctionDefinitions loaded. Error={}".format(function_definitions_path,
                                                                                             err))
@@ -539,6 +540,14 @@ class FunctionDefinitions(object):
 
     def _add_function_to_cache(self, new_function):
         self._functions[new_function.name] = new_function
+
+        new_function_point_defs = new_function.all_point_defs()
+        if new_function_point_defs & set(self._point_function_map.keys()):
+            raise ValueError("Point definition referenced by two functions")
+        else:
+            self._point_function_map.update(
+                {point_def: new_function for point_def in new_function_point_defs}
+            )
         # Ensure that the other function caches get rebuilt
         self._functions_by_id = {}
         self.named_step_definitions = {}
@@ -560,6 +569,9 @@ class FunctionDefinitions(object):
             self._functions_by_id = {func.function_id: func for func in self._functions_dictionary().values()}
         return self._functions_by_id
 
+    def point_function_map(self):
+        return self._point_function_map
+
     def function_for_id(self, function_id):
         """Return a specific function definition from (cached) dictionary of FunctionDefinitions."""
         return self.functions_by_id().get(function_id, None)
@@ -568,7 +580,7 @@ class FunctionDefinitions(object):
 class FunctionDefinition(object):
     """A MESA-ESS FunctionDefinition (aka mode, command)."""
 
-    def __init__(self, function_def_dict):
+    def __init__(self, point_definitions, function_def_dict):
         """
             Data holder for the definition of a MESA-ESS function.
 
@@ -594,6 +606,9 @@ class FunctionDefinition(object):
         """Return a string describing a function: its name and all of its StepDefinitions."""
         return 'Function {}: {}'.format(self.name, [s.__str__() for s in self.steps])
 
+    def all_point_defs(self):
+        # @Todo - return all point defs found in function.
+        return set()
 
 class StepDefinition(object):
     """Step definition in a MESA-ESS FunctionDefinition."""

@@ -460,12 +460,11 @@ class DNP3Exception(Exception):
 class PointDefinitions(object):
     """In-memory repository of PointDefinitions."""
 
-    _points = {}
-    _point_variation_dict = {}
-    _point_name_dict = {}
-
     def __init__(self, point_definitions_path=None):
         if point_definitions_path:
+            self._points = {}
+            self._point_variation_dict = {}
+            self._point_name_dict = {}
             file_path = os.path.expandvars(os.path.expanduser(point_definitions_path))
             self.load_points(file_path)
 
@@ -499,16 +498,14 @@ class PointDefinitions(object):
                 filtered_file_contents = _comment_re.sub(_repl, f.read())
                 json_file_contents = json.loads(filtered_file_contents)
                 for element in json_file_contents:
+                    # @todo Make this a factory method call that can return a subclass?
                     point_def = PointDefinition(element)
                     if point_def.array_points is not None:
                         self._expand_array_points(point_def)
-                    if self._points.get(point_def.point_type, None) is None:
-                        self._points[point_def.point_type] = {}
-                    point_type_dict = self._points[point_def.point_type]
-                    duplicate_point = point_type_dict.get(point_def.index, None)
-                    if duplicate_point:
+                    point_type_dict = self._points.setdefault(point_def.point_type, {})
+                    if point_def.index in point_type_dict:
                         error_message = 'Discarding DNP3 duplicate {0} (conflicting {1})'
-                        raise DNP3Exception(error_message.format(point_def, duplicate_point))
+                        raise DNP3Exception(error_message.format(point_def, point_type_dict[point_def.index]))
                     else:
                         # _log.debug('Loading {}'.format(point_def))
                         point_type_dict[point_def.index] = point_def
@@ -520,6 +517,9 @@ class PointDefinitions(object):
         """Load up a separate PointDefinition for each name in the array's 'points' list."""
         for pt_offset, pt in enumerate(point_def.array_points):
             # The first point in the list is already defined as the parent point, so skip it here.
+            # @todo Let's change so that parent point is just a container so that first point is described like all
+            # others
+            # @todo Array point expansion doesn't really need to be a special case if sublcass knows how to deal with it.
             if pt_offset > 0:
                 pt_element_def = {
                     'name': pt['name'],

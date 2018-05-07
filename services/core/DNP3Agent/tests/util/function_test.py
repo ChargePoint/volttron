@@ -1,11 +1,14 @@
 import json
 import os
 
+
 from dnp3.mesa import agent as MA
+from dnp3.base_dnp3_agent import PointDefinitions, PointDefinition
 
 # FUNCTION_DEF_PATH = "/Users/natehill/repos/volttron/services/core/DNP3Agent/mesa_functions.yaml"
 # SAMPLE_FUNC_TEST_PATH = "/Users/natehill/repos/volttron/services/core/DNP3Agent/tests/nate/sample_json/format.config"
 
+POINT_DEF_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'opendnp3_data.config'))
 FUNCTION_DEF_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'mesa_functions.yaml'))
 SAMPLE_FUNC_TEST_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'sample_json', 'format.config'))
 
@@ -17,6 +20,8 @@ class FunctionTestException(Exception):
 class FunctionTest(object):
 
     def __init__(self, **kwargs):
+        self.point_definitions = PointDefinitions(POINT_DEF_PATH)
+
         func_test_json = kwargs.pop('func_test_json', None)
         func_test_path = kwargs.pop('func_test_path', SAMPLE_FUNC_TEST_PATH)
 
@@ -37,7 +42,7 @@ class FunctionTest(object):
         no definition is found.
         :return:
         """
-        return MA.FunctionDefinitions(FUNCTION_DEF_PATH).function_for_id(self.function_id)
+        return MA.FunctionDefinitions(self.point_definitions, FUNCTION_DEF_PATH).function_for_id(self.function_id)
 
     @staticmethod
     def get_mandatory_steps(func_def):
@@ -60,7 +65,7 @@ class FunctionTest(object):
         if f_def:
             m_steps = self.get_mandatory_steps(f_def)
         else:
-            raise FunctionTestException("Function definition not found")
+            raise FunctionTestException("Function definition not found : {}, id = {}".format(f_def, self.function_id))
         if not all(step in self.ftest.keys() for step in m_steps):
             raise FunctionTestException("Function Test missing mandatory steps")
         return True
@@ -87,7 +92,7 @@ class FunctionTest(object):
 
         f_def = self.get_function_def()
         if not f_def:
-            raise FunctionTestException("Function definition not found")
+            raise FunctionTestException("Function definition not found : {}, id = {}".format(f_def, self.function_id))
         try:
             has_steps = self.has_mandatory_steps(f_def)
             pts_resolve = self.points_resolve(f_def)

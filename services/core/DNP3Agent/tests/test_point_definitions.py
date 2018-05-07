@@ -75,6 +75,9 @@ def test_point_definition():
 
 def test_function_definitions():
     point_definitions = PointDefinitions(POINT_DEFINITIONS_CONFIG)
+    fd = FunctionDefinitions(point_definitions, FUNCTION_CONFIG).function_for_id("curve")
+    print(fd)
+
     function_definitions = FunctionDefinitions(point_definitions, FUNCTION_CONFIG)
 
 if __name__ == "__main__":

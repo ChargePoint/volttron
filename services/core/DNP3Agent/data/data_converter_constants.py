@@ -1,3 +1,5 @@
+# Constant definitions for data_converter.py
+
 # Input/Output filenames
 POINT_INPUT_FILE = 'mesa_points.xlsx'
 POINT_OUTPUT_FILE = 'mesa_points.config'
@@ -34,7 +36,8 @@ LAST_ROW = {
     'BO': 42,
 }
 
-# Some point names and indexes need to be substituted for the ones read from the spreadsheet.
+# Additional or replacement properties for the point definitions read from the spreadsheet.
+# Key is spreadsheet row number.
 EXTRA_POINT_DATA = {
     'AI': {
         0: {'index': 443},  # DER version number

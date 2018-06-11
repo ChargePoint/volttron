@@ -247,19 +247,6 @@ class Converter(object):
         self.function_defs[function_name] = current_function
         return current_function
 
-    def add_added_function(self, function_def):
-        """Add another function based on function_def, a dictionary that defines it."""
-        function_name = function_def['name']
-        func = {
-            'id': function_name,
-            'name': function_name,
-            'steps': [],
-            'ref': 'Function added by script',
-        }
-        for row in function_def['steps']:
-            self.create_function_step(func, row)
-        self.function_defs[function_name] = func
-
     def add_points_for_added_function(self, points):
         """Hand-create point definitions for a function."""
         edit_selector_name = points['edit_selector_name'] if 'edit_selector_name' in points else None
@@ -320,7 +307,6 @@ class Converter(object):
             with open('tmp.csv', 'rU') as csv_input_file:
                 self.function_defs[worksheet_name] = self.load_function(csv_input_file, worksheet_name)
             os.remove('tmp.csv')
-        self.add_added_function(SCHEDULE_FUNCTION)
 
     def sort_points(self):
         """For easier readability, sort the resulting list of definitions by data_type and index."""

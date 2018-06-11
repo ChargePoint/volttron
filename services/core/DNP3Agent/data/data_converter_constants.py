@@ -26,9 +26,10 @@ FCODE_MAP = {
     ' ': None
 }
 
+# These point names will be replaced.
 BAD_POINT_NAMES = ['.', '#REF!', '1.', '7.', '10.']
 
-# Last row number that is read from each of the points worksheets.
+# Last row number that is read from each of the point definition worksheets.
 LAST_ROW = {
     'AI': 275,
     'AO': 223,
@@ -267,6 +268,8 @@ EXTRA_POINT_DATA = {
     }
 }
 
+# Additional or replacement properties for the function definitions read from the spreadsheet.
+# Key is worksheet name.
 EXTRA_FUNCTION_DATA = {
     'disconnect': {
         'ref': 'MESA-ESS spec section 6.2.2 (Table 13)',
@@ -457,7 +460,7 @@ EXTRA_FUNCTION_DATA = {
             13: {'action': 'publish'},
         },
     },
-    'Schedule': {
+    'schedule': {
         'ref': 'Not documented explicitly in the MESA-ESS spec',
         'steps': {
             3: {'action': 'publish'},
@@ -650,30 +653,6 @@ SCHEDULE_FUNCTION_POINTS = {
     ],
     'array_point_name': 'Schedule Start',
     'array_columns': [{'name': 'Schedule Time'}, {'name': 'Schedule Value'}],
-}
-
-SCHEDULE_FUNCTION = {
-    'name': 'Schedule',
-    'steps': [
-        {
-            'Step ': 1,
-            'IEC 61850 ': 'Schedule Edit Selector',
-            'Description ': '',
-            'M/O/C ': 'M',
-        },
-        {
-            'Step ': 2,
-            'IEC 61850 ': 'Schedule Start',
-            'Description ': '',
-            'M/O/C ': 'M',
-        },
-        {
-            'Step ': 3,
-            'IEC 61850 ': 'Schedule Enable',
-            'Description ': '',
-            'M/O/C ': 'M',
-        },
-    ]
 }
 
 

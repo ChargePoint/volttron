@@ -399,23 +399,6 @@ functions:
     optional: C
     point_name: If not switch, DCND.DERStop
     step_number: 5
-- id: Schedule
-  name: Schedule
-  ref: Function added by script
-  steps:
-  - description: ''
-    optional: M
-    point_name: Schedule Edit Selector
-    step_number: 1
-  - description: ''
-    optional: M
-    point_name: Schedule Start
-    step_number: 2
-  - action: publish
-    description: ''
-    optional: M
-    point_name: Schedule Enable
-    step_number: 3
 - id: schedule_creation
   name: schedule_creation
   ref: MESA-ESS spec section 6.6 (Table 37)
@@ -784,6 +767,23 @@ functions:
     point_name: DAMG.ModEna
     step_number: 9
   support_point: DAMG.Beh
+- id: schedule
+  name: schedule
+  ref: Not documented explicitly in the MESA-ESS spec
+  steps:
+  - description: ''
+    optional: M
+    point_name: Schedule Edit Selector
+    step_number: 1
+  - description: ''
+    optional: M
+    point_name: Schedule Start
+    step_number: 2
+  - action: publish
+    description: ''
+    optional: M
+    point_name: Schedule Enable
+    step_number: 3
 - id: dynamic_reactive_current
   name: dynamic_reactive_current
   ref: MESA-ESS spec section 6.3.3.6 (Table 20)

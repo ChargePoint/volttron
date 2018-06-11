@@ -82,7 +82,6 @@ class Converter(object):
                             # Advance an extra amount if the highest point is an array
                             next_index += len(pt['array_points']) * MAX_ARRAY_POINTS - 1
             next_index += 1                                      # This is the index to assign
-        print('Adding a {} point at index {}'.format(data_type_name, next_index))
         self.next_index[data_type_name] = next_index + 1         # This is the next available index
         return next_index
 
@@ -109,7 +108,7 @@ class Converter(object):
         for worksheet_name in DATA_TYPES.keys():
             with open(''.join([worksheet_name, '.csv']), 'wb') as output_file:
                 wr = csv.writer(output_file, quoting=csv.QUOTE_ALL)
-                sheet = workbook.get_sheet_by_name(worksheet_name)
+                sheet = workbook[worksheet_name]
                 for idx, row in enumerate(sheet.iter_rows()):
                     try:
                         wr.writerow([self.scrubbed_cell_value(cell.value) for cell in row])
@@ -566,11 +565,11 @@ class Converter(object):
     def create_mesa_functions(self):
         """Read input data, transforming into a yaml file of function definitions."""
         workbook = load_workbook(FUNCTION_INPUT_FILE, data_only=True)
-        for sheet_name in workbook.get_sheet_names():
+        for sheet_name in workbook.sheetnames:
             worksheet_name = sheet_name.encode('ascii', 'ignore')
             with open(''.join(['tmp.csv']), 'wb') as csv_output_file:
                 wr = csv.writer(csv_output_file, quoting=csv.QUOTE_ALL)
-                for idx, row in enumerate(workbook.get_sheet_by_name(worksheet_name).iter_rows()):
+                for idx, row in enumerate(workbook[worksheet_name].iter_rows()):
                     wr.writerow([self.scrubbed_cell_value(cell.value) for cell in row])
             with open('tmp.csv', 'rU') as csv_input_file:
                 self.function_defs[worksheet_name] = self.load_function_from_file(csv_input_file, worksheet_name)

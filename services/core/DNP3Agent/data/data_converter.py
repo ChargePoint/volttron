@@ -35,6 +35,7 @@ import os
 
 from data_converter_constants import *
 
+
 class Converter(object):
     """
         Transform DNP3 point and function definition data from spreadsheet into config files.
@@ -121,291 +122,34 @@ class Converter(object):
             raise ValueError('Duplicate point {}'.format(point_def))
         self.points_by_name[point_def['name']] = point_def
 
-    @staticmethod
-    def configure_selector_block(row, block_start, block_end):
-        """Add selector block properties to the point."""
-        revised_row = row.copy()
-        revised_row['Point Index'] = block_start
-        revised_row['type'] = 'selector_block'
-        revised_row['selector_block_start'] = block_start
-        revised_row['selector_block_end'] = block_end
-        return [revised_row]
-
-    def create_array_head_point(self, row, head_index, head_name, head_desc, times_repeated, total_columns, col_name):
-        """Create an array head point."""
-        revised_rows = []
-        array_head = row.copy()
-        array_head['Point Index'] = head_index
-        array_head['Unique String'] = head_name
-        array_head['description'] = head_desc
-        array_head['type'] = 'array'
-        array_head['array_times_repeated'] = times_repeated
-        array_head['array_points'] = [{'name': col_name}]
-        revised_rows.append(array_head)
-        # Don't put the array points (other than the head) in the config file. They'll get built by the software.
-        # revised_rows.extend(self.add_array_points(array_head, head_index, times_repeated, 0, total_columns))
-        return revised_rows
-
-    @staticmethod
-    def add_array_points(head_point, head_index, times_repeated, current_column, total_columns):
-        new_rows = []
-        for pt_index in range(times_repeated):
-            if pt_index > 0 or current_column > 0:      # Don't add the array head row twice
-                array_point = head_point.copy()
-                array_point.pop('type')
-                array_point.pop('array_times_repeated')
-                array_point.pop('array_points')
-                array_point['Point Index'] = head_index + total_columns * pt_index + current_column
-                array_point['Unique String'] = head_point['name'] \
-                    if 'name' in head_point \
-                    else head_point['Unique String']
-                new_rows.append(array_point)
-        return new_rows
-
-    def get_array_head(self, data_type, head_index):
-        array_heads = [pt for pt in self.point_defs if pt['data_type'] == data_type and pt['index'] == head_index]
-        if len(array_heads) != 1:
-            raise ValueError('Unable to find array head point with data type {} and index {}'.format(data_type,
-                                                                                                     head_index))
-        return array_heads[0]
-
-    def add_to_array(self, data_type, column_name, head_index, current_column, total_columns):
-        """Create a set of array interior points."""
-        array_head = self.get_array_head(data_type, head_index)
-        times_repeated = array_head['array_times_repeated']
-        array_head['array_points'].append({'name': column_name})
-        return self.add_array_points(array_head, head_index, times_repeated, current_column, total_columns)
-
-    def analog_input_revisions_for(self, row_num, row):
-        """Hard-coded changes to the Analog Input (AI) spreadsheet data."""
-        revised_rows = []
-        revised_row = row.copy()
-        if row_num == 230:
-            revised_rows = self.configure_selector_block(row, 227, 442)
-        elif row_num == 246:                # AI243 - AI442: Curve X and Y Points
-            revised_rows = self.create_array_head_point(row, 243, 'FMAR.in.PairArray.CsvPts', 'Curve Points',
-                                                        MAX_ARRAY_POINTS, 2, 'FMAR.in.PairArray.CsvPts.xVal')
-        elif row_num == 247:  # AI243 - AI442: Curve X and Y Points
-            revised_rows = self.add_to_array('AI', 'FMAR.in.PairArray.CsvPts.yVal', 243, 1, 2)
-            # Don't put the array points (other than the head) in the config file. They'll get built by the software.
-            return None
-        elif 248 <= row_num <= 252:
-            return None                    # Skip these curve-definition rows
-        elif row_num == 253:
-            return None                    # Skip this schedule-definition row
-        elif row_num == 254:
-            revised_rows = self.configure_selector_block(row, 446, 655)
-            revised_rows[0]['Unique String'] = 'FSCC.in.CtlSchdSt.EditSelector'
-        elif 255 <= row_num <= 263:
-            schedule_point_names = {
-                255: 'SelectedSchedulePriority',
-                256: 'SelectedScheduleType',
-                257: 'SelectedScheduleStartTimeLong1',
-                258: 'SelectedScheduleStartTimeLong2',
-                259: 'SelectedScheduleRepeatInterval',
-                260: 'SelectedScheduleRepeatIntervalUnits',
-                261: 'SelectedScheduleValidationStatus',
-                262: 'SelectedScheduleStatus',
-                263: 'SelectedScheduleNumberOfPoints'
-            }
-            revised_row['Point Index'] = row_num + 192         # Indexes 447-455
-            revised_row['Unique String'] = 'FSCC.in.CtlSchdSt.{}'.format(schedule_point_names[row_num])
-            revised_rows.append(revised_row)
-        elif 264 <= row_num <= 270:
-            return None        # Ignore these rows, which are obscure, and may be based on a misconception.
-        elif row_num == 271:                # AI 456 - AI 655: Selected schedule array points
-            revised_rows = self.create_array_head_point(row, 456, 'FSCH.in.SchVal', 'Schedule Points',
-                                                        MAX_ARRAY_POINTS, 2, 'FSCH.in.SchVal.val')
-        elif row_num == 272:
-            revised_rows = self.add_to_array('AI', 'FSCH.in.SchVal.TimeOffset', 456, 1, 2)
-            # Don't put the array points (other than the head) in the config file. They'll get built by the software.
-            return None
-        elif 273 <= row_num <= 275:
-            return None            # Skip these schedule-definition rows
-        elif row_num > 275:
-            # TBD: Points definitions not yet created for HM (meter), HD (DER unit), HI (inverter), HB (battery)
-            return None
-        elif row_num > 545:
-            return None  # Ignore these empty rows
-        return revised_rows
-
-    def analog_output_revisions_for(self, row_num, row):
-        """Hard-coded changes to the Analog Output (AO) spreadsheet data."""
-        revised_rows = []
-        revised_row = row.copy()
-        if row_num == 191:
-            revised_rows = self.configure_selector_block(row, 188, 403)
-        elif row_num == 207:                # AO204 - AO403: Curve X and Y Points
-            revised_rows = self.create_array_head_point(row, 204, 'FMAR.out.PairArray.CsvPts', 'Curve Points',
-                                                        MAX_ARRAY_POINTS, 2, 'FMAR.out.PairArray.CsvPts.xVal')
-        elif row_num == 208:
-            revised_rows = self.add_to_array('AO', 'FMAR.out.PairArray.CsvPts.yVal', 204, 1, 2)
-            # Don't put the array points (other than the head) in the config file. They'll get built by the software.
-            return None
-        elif 209 <= row_num <= 213:
-            return None                    # Skip these curve-definition rows
-        elif row_num == 214:
-            revised_rows = self.configure_selector_block(row, 407, 615)
-            revised_rows[0]['Unique String'] = 'FSCC.out.CtlSchdSt.EditSelector'
-        elif 215 <= row_num <= 222:
-            schedule_point_names = {
-                215: 'SelectedScheduleIdentity',
-                216: 'SelectedSchedulePriority',
-                217: 'SelectedScheduleType',
-                218: 'SelectedScheduleStartTimeLong1',
-                219: 'SelectedScheduleStartTimeLong2',
-                220: 'SelectedScheduleRepeatInterval',
-                221: 'SelectedScheduleRepeatIntervalUnits',
-                222: 'SelectedScheduleNumberOfPoints'
-            }
-            revised_row['Point Index'] = row_num + 193         # Indexes 408-415
-            revised_row['Unique String'] = 'FSCC.out.Schd.{}'.format(schedule_point_names[row_num])
-            revised_rows.append(revised_row)
-        elif row_num == 223:                # AO 416 - AO 615: Schedule array points
-            revised_rows = self.create_array_head_point(row, 416, 'FSCH.out.SchVal', 'Schedule Points',
-                                                        MAX_ARRAY_POINTS, 2, 'FSCH.out.SchVal.TimeOffset')
-        elif row_num == 224:
-            revised_rows = self.add_to_array('AO', 'FSCH.out.SchVal.val', 416, 1, 2)
-            # Don't put the array points (other than the head) in the config file. They'll get built by the software.
-            return None
-        elif 225 <= row_num <= 229:
-            return None            # Skip these schedule-definition rows
-        elif row_num > 229:
-            # TBD: Points definitions not yet created for HM (meter), HI (inverter), HB (battery)
-            return None
-        elif row_num > 288:
-            return None  # Ignore these empty rows
-        return revised_rows
-
-    @staticmethod
-    def binary_input_revisions_for(row_num, row):
-        """Hard-coded changes to the Binary Input (BI) spreadsheet data."""
-        revised_rows = []
-        if 84 <= row_num <= 93:
-            schedule_point_names = {
-                84: 'SelectedScheduleIsReady',
-                85: 'SelectedScheduleIsValidated',
-                86: 'SelectedScheduleRepeatWeeklySunday',
-                87: 'SelectedScheduleRepeatWeeklyMonday',
-                88: 'SelectedScheduleRepeatWeeklyTuesday',
-                89: 'SelectedScheduleRepeatWeeklyWednesday',
-                90: 'SelectedScheduleRepeatWeeklyThursday',
-                91: 'SelectedScheduleRepeatWeeklyFriday',
-                92: 'SelectedScheduleRepeatWeeklySaturday',
-                93: 'OneOrMoreSchedulesRunning',
-            }
-            revised_row = row.copy()
-            revised_row['Point Index'] = row_num
-            revised_row['Unique String'] = 'FSCH.SchdReuse.{}'.format(schedule_point_names[row_num])
-            revised_rows.append(revised_row)
-        elif row_num > 93:
-            # TBD: Points definitions not yet created for HM (meter), HDU (DER unit), HI (inverter), HB (battery)
-            return None
-        elif row_num > 289:
-            return None  # Ignore these empty rows
-        return revised_rows
-
-    @staticmethod
-    def binary_output_revisions_for(row_num, row):
-        """Hard-coded changes to the Binary Output (BO) spreadsheet data."""
-        revised_rows = []
-        if 35 <= row_num <= 42:
-            schedule_point_names = {
-                35: 'SetSelectedScheduleReady',
-                36: 'SetSelectedScheduleRepeatWeeklySunday',
-                37: 'SetSelectedScheduleRepeatWeeklyMonday',
-                38: 'SetSelectedScheduleRepeatWeeklyTuesday',
-                39: 'SetSelectedScheduleRepeatWeeklyWednesday',
-                40: 'SetSelectedScheduleRepeatWeeklyThursday',
-                41: 'SetSelectedScheduleRepeatWeeklyFriday',
-                42: 'SetSelectedScheduleRepeatWeeklySaturday',
-            }
-            revised_row = row.copy()
-            revised_row['Point Index'] = row_num
-            revised_row['Unique String'] = 'FSCH.SchdReuse.{}'.format(schedule_point_names[row_num])
-            revised_rows.append(revised_row)
-        elif row_num > 42:
-            return None                # Ignore these empty rows
-        return revised_rows
-
-    def revised_row_for(self, data_type_name, row_num, row):
-        """
-            Hard-coded data translation rules based on row_num values.
-
-            The transformation can return 0 rows, 1 rows, or multiple rows.
-
-        :param data_type_name: TBD
-        :param row_num: Row number in the Excel worksheet. This number is two less than what is displayed by Excel.
-        :param row: A dictionary of cell values mined from the CSV worksheet.
-        :return: A list of row definitions.
-        """
-        if data_type_name == 'AI':
-            revised_rows = self.analog_input_revisions_for(row_num, row)
-        elif data_type_name == 'AO':
-            revised_rows = self.analog_output_revisions_for(row_num, row)
-        elif data_type_name == 'BI':
-            revised_rows = self.binary_input_revisions_for(row_num, row)
-        elif data_type_name == 'BO':
-            revised_rows = self.binary_output_revisions_for(row_num, row)
-        else:
-            revised_rows = []
-
-        if revised_rows is None:
-            return []           # Skip this row
-        elif len(revised_rows) == 0:
-            # Do a standard cleanup of the row's data -- no row-specific tweaks needed!
-            revised_row = row.copy()
-            point_index = extra_point_data(data_type_name, row_num, 'index')
-            if point_index is None:
+    def load_point(self, data_type_name, row_num, row, default_row_values):
+        """Transform data from the input CSV row into a more consumable set of JSON data."""
+        try:
+            point_def = extra_point_data(data_type_name, row_num)
+            if point_def.get('operation', None) == 'skip':
+                return None
+            if 'index' not in point_def:
                 # Remove the Point Index's two-character data-type prefix. Confirm that the result is an integer.
-                point_index = row.get('Point Index', '').replace('\n', ' ').replace('\r', ' ')
-                index_name = point_index[0:2]
+                index = row.get('Point Index', '').replace('\n', ' ').replace('\r', ' ')
+                index_name = index[0:2]
                 if index_name != data_type_name:
                     raise ValueError('Unexpected data type name in point index = ', index_name)
-                point_index = int(point_index[2:])
-            revised_row['Point Index'] = point_index
-
-            name = extra_point_data(data_type_name, row_num, 'name')
-            if name is None:
+                point_def['index'] = int(index[2:])
+            if 'name' not in point_def:
                 # Remove embedded newlines in the name.
                 name = row.get('Unique String', '').replace('\n', ' ').replace('\r', ' ')
                 if len(name) < 1 or name in BAD_POINT_NAMES:
                     # The row has a bad or nonexistent Unique String. Invent one.
                     name = data_type_name + '.' + row['Point Index']
-            revised_row['Unique String'] = name
-
-            point_type = extra_point_data(data_type_name, row_num, 'type')
-            if point_type is not None:
-                revised_row['type'] = point_type
-
-            revised_rows.append(revised_row)
-
-        return revised_rows
-
-    def load_point_from_file(self, data_type_name, row_num, row, default_row_values):
-        """Transform data from the input CSV row into a more consumable set of JSON data."""
-        try:
-            for r_row in self.revised_row_for(data_type_name, row_num, row):
-                point_def = {
-                    'data_type': data_type_name,
-                    'index': r_row['Point Index'],
-                    'name': r_row['Unique String'],
-                    'group': default_row_values['group'],
-                    'variation': default_row_values['variation'],
-                }
-                if 'Name / Description' in r_row and r_row['Name / Description']:
-                    point_def['description'] = r_row['Name / Description']
-                if 'Units' in r_row and r_row['Units']:
-                    point_def['units'] = r_row['Units']
-                if 'type' in r_row:
-                    point_def['type'] = r_row['type']
-                    if r_row['type'] == 'selector_block':
-                        point_def['selector_block_start'] = r_row['selector_block_start']
-                        point_def['selector_block_end'] = r_row['selector_block_end']
-                    elif r_row['type'] == 'array':
-                        point_def['array_times_repeated'] = r_row['array_times_repeated']
-                        point_def['array_points'] = r_row['array_points']
-                self.add_point(point_def)
+                point_def['name'] = name
+            point_def['data_type'] = data_type_name
+            point_def['group'] = default_row_values['group']
+            point_def['variation'] = default_row_values['variation']
+            if row.get('Name / Description', None):
+                point_def['description'] = row['Name / Description']
+            if row.get('Units', None):
+                point_def['units'] = row['Units']
+            self.add_point(point_def)
         except ValueError as exc:
             # Skip the row
             err_msg = '\tBad {} row data: row_num={}, point_index={}, unique_string={}, exc={}'
@@ -469,7 +213,7 @@ class Converter(object):
                 if fcodes:
                     fcodes_to_save = [FCODE_MAP[fc] for fc in fcodes.split(',') if FCODE_MAP[fc]]
                     if len(fcodes_to_save) > 1 or 'select' in fcodes_to_save:
-                        # Don't save the code if it's just an operate; that's the default.
+                        # Don't save the code if it's just an Operate; that's the default.
                         step['fcodes'] = fcodes_to_save
             action = extra_data_for_function_step(function_name, step_number, 'action')
             if action:
@@ -480,7 +224,7 @@ class Converter(object):
                                                                                          function_name,
                                                                                          step_number))
 
-    def load_function_from_file(self, csv_input_file, function_name):
+    def load_function(self, csv_input_file, function_name):
         """Construct and return a function from the CSV data in the worksheet named function_name."""
         current_function = {
             'id': function_name,
@@ -549,7 +293,9 @@ class Converter(object):
         for data_type_name, default_row_values in DATA_TYPES.items():
             with open(data_type_name + '.csv', 'rU') as input_file:
                 for row_num, row in enumerate(csv.DictReader(input_file)):
-                    self.load_point_from_file(data_type_name, row_num, row, default_row_values)
+                    if row_num <= LAST_ROW[data_type_name]:
+                        # Skip high-numbered rows that have useless emptiness or unsupported data
+                        self.load_point(data_type_name, row_num, row, default_row_values)
 
         print('Finished with initial point creation')
         # Create additional points for names that appear in function definitions but not in the spreadsheet.
@@ -572,7 +318,7 @@ class Converter(object):
                 for idx, row in enumerate(workbook[worksheet_name].iter_rows()):
                     wr.writerow([self.scrubbed_cell_value(cell.value) for cell in row])
             with open('tmp.csv', 'rU') as csv_input_file:
-                self.function_defs[worksheet_name] = self.load_function_from_file(csv_input_file, worksheet_name)
+                self.function_defs[worksheet_name] = self.load_function(csv_input_file, worksheet_name)
             os.remove('tmp.csv')
         self.add_added_function(SCHEDULE_FUNCTION)
 

@@ -26,6 +26,14 @@ FCODE_MAP = {
 
 BAD_POINT_NAMES = ['.', '#REF!', '1.', '7.', '10.']
 
+# Last row number that is read from each of the points worksheets.
+LAST_ROW = {
+    'AI': 275,
+    'AO': 223,
+    'BI': 93,
+    'BO': 42,
+}
+
 # Some point names and indexes need to be substituted for the ones read from the spreadsheet.
 EXTRA_POINT_DATA = {
     'AI': {
@@ -44,8 +52,68 @@ EXTRA_POINT_DATA = {
         99: {'name': 'DCHD.ChaRmpUpRte.1'},
         165: {'name': 'DWSM.RmpTms.1'},
         218: {'name': 'DPFC.PFCorRef.rangeC.1'},
-        246: {'type': 'array'},
-        271: {'type': 'array'},
+        230: {
+            'type': 'selector_block',
+            'index': 227,
+            'selector_block_start': 227,
+            'selector_block_end': 442,
+        },
+        246: {
+            'type': 'array',
+            'index': 243,
+            'name': 'FMAR.in.PairArray.CsvPts',
+            'description': 'Curve Points',
+            'array_times_repeated': 100,
+            'array_points': [
+                {'name': 'FMAR.in.PairArray.CsvPts.xVal'},
+                {'name': 'FMAR.in.PairArray.CsvPts.yVal'}
+            ]
+        },
+        247: {'operation': 'skip'},
+        248: {'operation': 'skip'},
+        249: {'operation': 'skip'},
+        250: {'operation': 'skip'},
+        251: {'operation': 'skip'},
+        252: {'operation': 'skip'},
+        253: {'operation': 'skip'},
+        254: {
+            'name': 'FSCC.in.CtlSchdSt.EditSelector',
+            'type': 'selector_block',
+            'index': 446,
+            'selector_block_start': 446,
+            'selector_block_end': 655,
+        },
+        255: {'index': 447, 'name': 'FSCC.in.CtlSchdSt.SelectedSchedulePriority'},
+        256: {'index': 448, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleType'},
+        257: {'index': 449, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleStartTimeLong1'},
+        258: {'index': 450, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleStartTimeLong2'},
+        259: {'index': 451, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleRepeatInterval'},
+        260: {'index': 452, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleRepeatIntervalUnits'},
+        261: {'index': 453, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleValidationStatus'},
+        262: {'index': 454, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleStatus'},
+        263: {'index': 455, 'name': 'FSCC.in.CtlSchdSt.SelectedScheduleNumberOfPoints'},
+        264: {'operation': 'skip'},
+        265: {'operation': 'skip'},
+        266: {'operation': 'skip'},
+        267: {'operation': 'skip'},
+        268: {'operation': 'skip'},
+        269: {'operation': 'skip'},
+        270: {'operation': 'skip'},
+        271: {
+            'type': 'array',
+            'index': 456,
+            'name': 'FSCH.in.SchVal',
+            'description': 'Schedule Points',
+            'array_times_repeated': 100,
+            'array_points': [
+                {'name': 'FSCH.in.SchVal.val'},
+                {'name': 'FSCH.in.SchVal.TimeOffset'}
+            ]
+        },
+        272: {'operation': 'skip'},
+        273: {'operation': 'skip'},
+        274: {'operation': 'skip'},
+        275: {'operation': 'skip'},
     },
     'AO': {
         0: {'index': 404},  # Reference voltage
@@ -70,6 +138,12 @@ EXTRA_POINT_DATA = {
         168: {'name': 'DGSM2.1'},
         170: {'name': 'RDGS1.DbVMin.1'},
         188: {'name': 'DOPM1.RmpTms.1'},
+        191: {
+            'type': 'selector_block',
+            'index': 188,
+            'selector_block_start': 188,
+            'selector_block_end': 403,
+        },
         192: {'name': 'DGSMn.ModTyp.1'},
         193: {'name': 'DGSMn.WinTms.1'},
         194: {'name': 'DGSMn.RmpTms.1'},
@@ -85,8 +159,49 @@ EXTRA_POINT_DATA = {
         204: {'name': 'FMARn.DeptSnptRef.1'},
         205: {'name': 'FMARn.DeptRefStr.1'},
         206: {'name': 'FMAR.out.PairArray.CsvPts.1'},
-        207: {'type': 'array'},
-        223: {'type': 'array'},
+        207: {
+            'type': 'array',
+            'index': 204,
+            'name': 'FMAR.out.PairArray.CsvPts',
+            'description': 'Curve Points',
+            'array_times_repeated': 100,
+            'array_points': [
+                {'name': 'FMAR.out.PairArray.CsvPts.xVal'},
+                {'name': 'FMAR.out.PairArray.CsvPts.yVal'}
+            ]
+        },
+        208: {'operation': 'skip'},
+        209: {'operation': 'skip'},
+        210: {'operation': 'skip'},
+        211: {'operation': 'skip'},
+        212: {'operation': 'skip'},
+        213: {'operation': 'skip'},
+        214: {
+            'name': 'FSCC.out.CtlSchdSt.EditSelector',
+            'type': 'selector_block',
+            'index': 407,
+            'selector_block_start': 407,
+            'selector_block_end': 615,
+        },
+        215: {'index': 408, 'name': 'FSCC.out.Schd.SelectedScheduleIdentity'},
+        216: {'index': 409, 'name': 'FSCC.out.Schd.SelectedSchedulePriority'},
+        217: {'index': 410, 'name': 'FSCC.out.Schd.SelectedScheduleType'},
+        218: {'index': 411, 'name': 'FSCC.out.Schd.SelectedScheduleStartTimeLong1'},
+        219: {'index': 412, 'name': 'FSCC.out.Schd.SelectedScheduleStartTimeLong2'},
+        220: {'index': 413, 'name': 'FSCC.out.Schd.SelectedScheduleRepeatInterval'},
+        221: {'index': 414, 'name': 'FSCC.out.Schd.SelectedScheduleRepeatIntervalUnits'},
+        222: {'index': 415, 'name': 'FSCC.out.Schd.SelectedScheduleNumberOfPoints'},
+        223: {
+            'type': 'array',
+            'index': 416,
+            'name': 'FSCH.out.SchVal',
+            'description': 'Schedule Points',
+            'array_times_repeated': 100,
+            'array_points': [
+                {'name': 'FSCH.out.SchVal.TimeOffset'},
+                {'name': 'FSCH.out.SchVal.val'}
+            ]
+        },
     },
     'BI': {
         0: {'index': 81},        # System communication error
@@ -103,6 +218,16 @@ EXTRA_POINT_DATA = {
         60: {'name': 'PTUV.Str.general.1'},
         61: {'name': 'PTUV.Op.general.1'},
         76: {'name': 'DFWS.Mod.1'},
+        84: {'index': 84, 'name': 'FSCH.SchdReuse.SelectedScheduleIsReady'},
+        85: {'index': 85, 'name': 'FSCH.SchdReuse.SelectedScheduleIsValidated'},
+        86: {'index': 86, 'name': 'FSCH.SchdReuse.SelectedScheduleRepeatWeeklySunday'},
+        87: {'index': 87, 'name': 'FSCH.SchdReuse.SelectedScheduleRepeatWeeklyMonday'},
+        88: {'index': 88, 'name': 'FSCH.SchdReuse.SelectedScheduleRepeatWeeklyTuesday'},
+        89: {'index': 89, 'name': 'FSCH.SchdReuse.SelectedScheduleRepeatWeeklyWednesday'},
+        90: {'index': 90, 'name': 'FSCH.SchdReuse.SelectedScheduleRepeatWeeklyThursday'},
+        91: {'index': 91, 'name': 'FSCH.SchdReuse.SelectedScheduleRepeatWeeklyFriday'},
+        92: {'index': 92, 'name': 'FSCH.SchdReuse.SelectedScheduleRepeatWeeklySaturday'},
+        93: {'index': 93, 'name': 'FSCH.SchdReuse.OneOrMoreSchedulesRunning'},
     },
     'BO': {
         0: {'index': 32},  # System set lockout state
@@ -128,6 +253,14 @@ EXTRA_POINT_DATA = {
         30: {'name': 'DPFC.Mod.1'},
         31: {'name': 'DPRG.Mod.1'},
         32: {'name': 'RDGS.Mod.2'},
+        35: {'index': 35, 'name': 'FSCH.SchdReuse.SetSelectedScheduleReady'},
+        36: {'index': 36, 'name': 'FSCH.SchdReuse.SetSelectedScheduleRepeatWeeklySunday'},
+        37: {'index': 37, 'name': 'FSCH.SchdReuse.SetSelectedScheduleRepeatWeeklyMonday'},
+        38: {'index': 38, 'name': 'FSCH.SchdReuse.SetSelectedScheduleRepeatWeeklyTuesday'},
+        39: {'index': 39, 'name': 'FSCH.SchdReuse.SetSelectedScheduleRepeatWeeklyWednesday'},
+        40: {'index': 40, 'name': 'FSCH.SchdReuse.SetSelectedScheduleRepeatWeeklyThursday'},
+        41: {'index': 41, 'name': 'FSCH.SchdReuse.SetSelectedScheduleRepeatWeeklyFriday'},
+        42: {'index': 42, 'name': 'FSCH.SchdReuse.SetSelectedScheduleRepeatWeeklySaturday'},
     }
 }
 
@@ -329,7 +462,8 @@ EXTRA_FUNCTION_DATA = {
     },
 }
 
-# Many function steps reference points that aren't defined in the spreadsheet. Add definitions for those points.
+# Many function steps reference names of analog output points that aren't defined in the spreadsheet.
+# Add definitions for those points.
 MORE_POINTS = {
     'AO': [
         "DCND.WinTms",
@@ -551,6 +685,6 @@ def extra_data_for_function_step(function_name, step_number, data_element_name):
     return func_data.get(step_number, {}).get(data_element_name, None) if func_data else None
 
 
-def extra_point_data(data_type_name, row_num, data_element_name):
+def extra_point_data(data_type_name, row_num):
     """Return extra data for the indicated data type, spreadsheet row number and data element, or None."""
-    return EXTRA_POINT_DATA.get(data_type_name, {}).get(row_num, {}).get(data_element_name, None)
+    return EXTRA_POINT_DATA.get(data_type_name, {}).get(row_num, {})

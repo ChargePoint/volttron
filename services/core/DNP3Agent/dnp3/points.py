@@ -420,7 +420,7 @@ class BasePointDefinition(object):
         self.variation = element_def.get('variation', None)
         self.index = element_def.get('index', None)
         self.description = element_def.get('description', '')
-        self.scaling_multiplier = element_def.get('scaling_multiplier', 1)
+        self.scaling_multiplier = element_def.get('scaling_multiplier', 1) # Only used for Analog data_type
         self.units = element_def.get('units', '')
         self.event_class = element_def.get('event_class', 2)
         self.event_group = element_def.get('event_group', None)
@@ -431,6 +431,27 @@ class BasePointDefinition(object):
         self.action = element_def.get('action', None)
         self.response = element_def.get('response', None)
         self.category = element_def.get('category', None)
+        self.ln_class = element_def.get('ln_class', None)
+        self.data_object = element_def.get('data_object', None)
+        self.cdc = element_def.get('cdc', None)
+        self.data_type = element_def.get('data_type', None)
+        self.minimum = element_def.get('minimum', -2147483648) # Only used for Analog data_type
+        self.maximum = element_def.get('maximum', 2147483647) # Only used for Analog data_type
+        self.scaling_offset = element_def.get('scaling_offset', 0) # Only used for Analog data_type
+        self.allowed_values = element_def.get('allowed_values', None)  # Only used for enumerated type
+
+    @property
+    def is_enumerated(self):
+        return self.type == 'enumerated'
+
+    @property
+    def enumerated_allowed_values(self):
+        if self.is_enumerated:
+            val_map = dict()
+            for str_val, desciption in self.allowed_values.items():
+                val_map[int(str_val)] = desciption
+            return val_map
+        return None
 
     @property
     def is_array_point(self):
@@ -446,17 +467,17 @@ class BasePointDefinition(object):
 
     def validate_point(self):
         """A PointDefinition has been created. Perform a variety of validations on it."""
-        if self.type is not None and self.type not in ['array', 'selector_block']:
+        if self.type not in [None, 'array', 'selector_block', 'enumerated']:
             raise ValueError('Invalid type for {}: {}'.format(self.name, self.type))
-        if self.group is None:
+        if not self.group:
             raise ValueError('Missing group for {}'.format(self.name))
-        if self.variation is None:
+        if not self.variation:
             raise ValueError('Missing variation for {}'.format(self.name))
-        if self.index is None:
+        if not self.index:
             raise ValueError('Missing index for {}'.format(self.name))
 
         # Use intelligent defaults for event_group and event_variation based on data type
-        if self.event_group is None:
+        if not self.event_group:
             if self.point_type in EVENT_DEFAULTS_BY_POINT_TYPE:
                 self.event_group = EVENT_DEFAULTS_BY_POINT_TYPE[self.point_type]["group"]
             else:
@@ -479,6 +500,9 @@ class BasePointDefinition(object):
                 raise ValueError('selector_block_start defined for non-selector-block point {}'.format(self.name))
             if self.selector_block_end is not None:
                 raise ValueError('selector_block_end defined for non-selector-block point {}'.format(self.name))
+
+        if self.is_enumerated and not self.enumerated_allowed_values:
+            raise ValueError('Missing allowed values mapping for point {}'.format(self.name))
 
     def as_json(self):
         """Return a json description of the PointDefinition."""
@@ -506,6 +530,8 @@ class BasePointDefinition(object):
             point_json["selector_block_end"] = self.selector_block_end
         if self.save_on_write is not None:
             point_json["save_on_write"] = self.save_on_write
+        if self.enumerated_allowed_values:
+            point_json["allowed_values"] = self.enumerated_allowed_values
         return point_json
 
     def __str__(self):
@@ -588,7 +614,7 @@ class PointDefinition(BasePointDefinition):
     def validate_point(self):
         """A PointDefinition has been created. Perform a variety of validations on it."""
         super(PointDefinition, self).validate_point()
-        if self.type is not None and self.type != 'selector_block':
+        if self.type and self.type not in ['selector_block', 'enumerated']:
             raise ValueError('Invalid type for {}: {}'.format(self.name, self.type))
 
 

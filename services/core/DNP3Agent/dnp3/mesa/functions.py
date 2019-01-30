@@ -217,12 +217,14 @@ class FunctionDefinition(object):
         return [step_def.point_def for step_def in self.steps]
 
     def is_mode(self):
+        #@todo: point.category
         for point in self.all_points():
             if 'ModEna' in point.name:
                 return True
         return False
 
     def get_mode_enable(self):
+        # @todo: point.category
         for point in self.all_points():
             if 'ModEna' in point.name:
                 return point

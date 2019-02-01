@@ -117,14 +117,15 @@ class DNP3Outstation(opendnp3.IOutstationApplication):
         _log.debug('Configuring the DNP3 Outstation database.')
         db_config = self.stack_config.dbConfig
         for point in self.get_agent().point_definitions.all_points():
-            if point.point_type == 'Analog Input':
+            if point.data_type == 'Analog Input':
                 cfg = db_config.analog[int(point.index)]
-            elif point.point_type == 'Binary Input':
+            elif point.data_type == 'Binary Input':
                 cfg = db_config.binary[int(point.index)]
             else:
                 # This database's point configuration is limited to Binary and Analog data types.
                 cfg = None
             if cfg:
+                # cfg.vIndex = virtual index of the point
                 cfg.clazz = point.eclass
                 cfg.svariation = point.svariation
                 cfg.evariation = point.evariation
@@ -313,6 +314,7 @@ class DNP3Outstation(opendnp3.IOutstationApplication):
             The debug messages may be helpful if errors occur during shutdown.
         """
         _log.debug('Exiting DNP3 Outstation module...')
+        self.manager.Shutdown()
         _log.debug('Garbage collecting DNP3 Outstation...')
         self.set_outstation(None)
         _log.debug('Garbage collecting DNP3 stack config...')

@@ -52,8 +52,8 @@ PORT = 20000
 
 DNP3_AGENT_ID = 'dnp3agent'
 POINT_TOPIC = "dnp3/point"
-TEST_GET_POINT_NAME = 'DCHD.VArAct (out)'
-TEST_SET_POINT_NAME = 'DCHD.WinTms (in)'
+TEST_GET_POINT_NAME = 'DCTE.WinTms.AO11'
+TEST_SET_POINT_NAME = 'DCTE.WinTms.AI55'
 
 input_group_map = {
     1: "Binary",
@@ -249,11 +249,9 @@ class TestDNP3Agent:
 
     def test_send_point(self, run_master, agent, reset):
         """Send a point from the master and get its value from DNP3Agent."""
-        self.get_point_definition(agent, TEST_GET_POINT_NAME)
         exceptions = self.send_single_point(run_master, TEST_GET_POINT_NAME, 45)
         assert exceptions == {}
         received_point = self.get_point(agent, TEST_GET_POINT_NAME)
-        assert exceptions == {}
         # Confirm that the agent's received point value matches the value that was sent.
         assert received_point == 45, "Expected {} = {}, got {}".format(TEST_GET_POINT_NAME, 45, received_point)
         dict_compare({TEST_GET_POINT_NAME: 45}, self.subscribed_points())

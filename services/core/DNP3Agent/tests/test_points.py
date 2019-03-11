@@ -7,17 +7,14 @@ from test_mesa_agent import POINT_DEFINITIONS_PATH, FUNCTION_DEFINITIONS_PATH
 
 AO_4 = {
     'index': 4,
-    'group': 40,
     'description': 'Power Factor Sign convention',
     'data_type': 'AO',
     'common_data_class': 'ENG',
     'maximum': 2,
-    'variation': 2,
     'ln_class': 'MMXU',
     'units': 'None',
     'minimum': 1,
     'data_object': 'PFSign',
-    'event_class': 2,
     'allowed_values': {
         '1': 'IEC active power',
         '2': 'IEEE lead/lag'
@@ -28,16 +25,13 @@ AO_4 = {
 
 AO_244 = {
     'index': 244,
-    'group': 40,
     'description': 'Curve Edit Selector. Writing to this point selects '
                    'which of the curves can currently be viewed and changed.',
     'data_type': 'AO',
     'common_data_class': 'ORG',
-    'variation': 2,
     'ln_class': 'DGSM',
     'minimum': 1,
     'data_object': 'InCrv',
-    'event_class': 2,
     'name': 'DGSMn.InCrv.AO244',
     'type': 'selector_block',
     'selector_block_start': 244,
@@ -94,18 +88,6 @@ class TestPointDefinition:
             'key': 'ValueError',
             'error': 'Missing data type for point {}'.format(self.point_json['name'])
         }
-
-    def test_conflict_group_and_data_type(self):
-        """Test raising exception if group does not match data_type"""
-        point_json = self.point_json
-        point_json.update({
-            'group': 30
-        })
-        exception = self.validate_point_definition(point_json)
-        assert exception == {
-            'key': 'ValueError',
-            'error': 'Group 30 does not match data type AO for point {}'.format(self.point_json['name'])
-        }
         
     def test_invalid_event_class(self):
         """Test raising exception if event_class is not 0, 1, 2, or 3"""
@@ -151,32 +133,6 @@ class TestPointDefinition:
         assert exception == {
             'key': 'ValueError',
             'error': 'Missing allowed values mapping for point {}'.format(self.point_json['name'])
-        }
-        
-    def test_invalid_group_and_variation(self):
-        """Test raising exception if the point has invalid group and variation"""
-        point_json = self.point_json
-        point_json.update({
-            'group': 40,
-            'variation': 0
-        })
-        exception = self.validate_point_definition(point_json)
-        assert exception == {
-            'key': 'ValueError',
-            'error': 'Invalid group 40 and variation 0 for point {}'.format(self.point_json['name'])
-        }
-
-    def test_invalid_event_group_and_variation(self):
-        """Test raising exception if the point has invalid group and variation"""
-        point_json = self.point_json
-        point_json.update({
-            'event_group': 42,
-            'event_variation': 0
-        })
-        exception = self.validate_point_definition(point_json)
-        assert exception == {
-            'key': 'ValueError',
-            'error': 'Invalid event group 42 and variation 0 for point {}'.format(self.point_json['name'])
         }
 
     def test_invalid_defined_selector_block_start(self):

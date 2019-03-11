@@ -42,8 +42,8 @@ import re
 from pydnp3 import opendnp3
 from dnp3 import POINT_TYPES, POINT_TYPE_SELECTOR_BLOCK, POINT_TYPE_ENUMERATED, POINT_TYPE_ARRAY
 from dnp3 import DATA_TYPE_ANALOG_INPUT, DATA_TYPE_ANALOG_OUTPUT, DATA_TYPE_BINARY_INPUT, DATA_TYPE_BINARY_OUTPUT
-from dnp3 import EVENT_CLASSES, EVENT_DEFAULTS_BY_DATA_TYPE, GROUP_AND_VARIATIONS, DATA_TYPES_BY_GROUP
-from dnp3 import DEFAULT_GROUP_BY_DATA_TYPE, DEFAULT_VARIATION, DEFAULT_EVENT_CLASS
+from dnp3 import EVENT_CLASSES, DATA_TYPES_BY_GROUP
+from dnp3 import DEFAULT_GROUP_BY_DATA_TYPE, DEFAULT_EVENT_CLASS
 from dnp3 import PUBLISH_AND_RESPOND
 
 _log = logging.getLogger(__name__)
@@ -134,7 +134,10 @@ class PointDefinitions(object):
 
     def for_group_and_index(self, group, index):
         """Return a PointDefinition for given group and index"""
-        return self._points.get(PointDefinition.data_type_for_group(group), {}).get(index, None)
+        data_type = DATA_TYPES_BY_GROUP.get(group, None)
+        if not data_type:
+            _log.error('No DNP3 point type found for group {}'.format(group))
+        return self._points.get(data_type, {}).get(index, None)
 
     def point_value_for_command(self, command_type, command, index, op_type):
         """
@@ -227,14 +230,10 @@ class BasePointDefinition(object):
         self.data_type = element_def.get('data_type', None)
         self.index = element_def.get('index', None)
         self.type = element_def.get('type', None)
-        self.group = element_def.get('group', None)
-        self.variation = element_def.get('variation', DEFAULT_VARIATION)
         self.description = element_def.get('description', '')
         self.scaling_multiplier = element_def.get('scaling_multiplier', 1)  # Only used for Analog data_type
         self.units = element_def.get('units', '')
         self.event_class = element_def.get('event_class', DEFAULT_EVENT_CLASS)
-        self.event_group = element_def.get('event_group', None)
-        self.event_variation = element_def.get('event_variation', None)
         self.selector_block_start = element_def.get('selector_block_start', None)
         self.selector_block_end = element_def.get('selector_block_end', None)
         self.action = element_def.get('action', None)
@@ -279,10 +278,6 @@ class BasePointDefinition(object):
             raise ValueError('Missing data type for point {}'.format(self.name))
         if self.data_type not in DEFAULT_GROUP_BY_DATA_TYPE:
             raise ValueError('Invalid data type {} for point {}'.format(self.data_type, self.name))
-        if self.group is not None and self.data_type != DATA_TYPES_BY_GROUP.get(self.group, None):
-            raise ValueError('Group {} does not match data type {} for point {}'.format(self.group,
-                                                                                        self.data_type,
-                                                                                        self.name))
         if not self.eclass:
             raise ValueError('Invalid event class {} for point {}'.format(self.event_class, self.name))
         if self.type and self.type not in POINT_TYPES:
@@ -291,23 +286,6 @@ class BasePointDefinition(object):
             raise ValueError('Missing response point name for point {}'.format(self.name))
         if self.is_enumerated and not self.allowed_values:
             raise ValueError('Missing allowed values mapping for point {}'.format(self.name))
-
-        # Use intelligent defaults for event_group and event_variation based on data type
-        if self.group is None:
-            self.group = DEFAULT_GROUP_BY_DATA_TYPE[self.data_type]
-        if self.event_group is None:
-            self.event_group = EVENT_DEFAULTS_BY_DATA_TYPE[self.data_type]["group"]
-        if self.event_variation is None:
-            self.event_variation = EVENT_DEFAULTS_BY_DATA_TYPE[self.data_type]["variation"]
-
-        if not self.svariation:
-            raise ValueError('Invalid group {} and variation {} for point {}'.format(self.group,
-                                                                                     self.variation,
-                                                                                     self.name))
-        if not self.evariation:
-            raise ValueError('Invalid event group {} and variation {} for point {}'.format(self.event_group,
-                                                                                           self.event_variation,
-                                                                                           self.name))
         if self.is_selector_block:
             if self.selector_block_start is None:
                 raise ValueError('Missing selector_block_start for block named {}'.format(self.name))
@@ -328,10 +306,7 @@ class BasePointDefinition(object):
             "data_type": self.data_type,
             "index": self.index,
             "group": self.group,
-            "variation": self.variation,
-            "event_class": self.event_class,
-            "event_group": self.event_group,
-            "event_variation": self.event_variation
+            "event_class": self.event_class
         }
         if self.type:
             point_json["type"] = self.type
@@ -370,24 +345,20 @@ class BasePointDefinition(object):
     def __str__(self):
         """Return a string description of the PointDefinition."""
         try:
-            return '{0} {1} ({2}, index={3}, type={4})'.format(self.__class__.__name__,
-                                                               self.name,
-                                                               self.group_and_variation,
-                                                               self.index,
-                                                               self.data_type)
+            return '{0} {1} (event_class={2}, index={3}, type={4})'.format(
+                self.__class__.__name__,
+                self.name,
+                self.event_class,
+                self.index,
+                self.data_type
+            )
         except UnicodeEncodeError as err:
             _log.error('Unable to convert point definition to string, err = {}'.format(err))
             return ''
 
     @property
-    def group_and_variation(self):
-        """Return a string representation of the PointDefinition's group and variation."""
-        return '{0}.{1}'.format(self.group, self.variation)
-
-    @property
-    def event_group_and_variation(self):
-        """Return a string representation of the PointDefinition's event group and event variation."""
-        return '{0}.{1}'.format(self.event_group, self.event_variation)
+    def group(self):
+        return DEFAULT_GROUP_BY_DATA_TYPE.get(self.data_type, None)
 
     @property
     def is_input(self):
@@ -407,24 +378,6 @@ class BasePointDefinition(object):
     def eclass(self):
         """Return the PointDefinition's event class, or the default (2) if no event class was defined for the point."""
         return EVENT_CLASSES.get(self.event_class, None)
-
-    @property
-    def svariation(self):
-        """Return the PointDefinition's group-and-variation enumerated type."""
-        return GROUP_AND_VARIATIONS.get(self.group_and_variation, None)
-
-    @property
-    def evariation(self):
-        """Return the PointDefinition's event group-and-variation enumerated type."""
-        return GROUP_AND_VARIATIONS.get(self.event_group_and_variation, None)
-
-    @classmethod
-    def data_type_for_group(cls, group):
-        """Return the point type for a group value."""
-        data_type = DATA_TYPES_BY_GROUP.get(group, None)
-        if not data_type:
-            _log.error('No DNP3 point type found for group {}'.format(group))
-        return data_type
 
 
 class PointDefinition(BasePointDefinition):
@@ -583,7 +536,7 @@ class PointValue(object):
         str_desc = 'Point value {0} ({1}, {2}.{3}, {4})'
         return str_desc.format(self.value or self.function_code,
                                self.name,
-                               self.point_def.group_and_variation,
+                               self.point_def.event_class,
                                self.index,
                                self.command_type)
 

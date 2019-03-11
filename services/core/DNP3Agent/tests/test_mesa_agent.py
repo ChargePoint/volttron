@@ -178,9 +178,9 @@ class TestMesaAgent:
         return agent.vip.rpc.call(MESA_AGENT_ID, 'get_point_definitions', point_names).get(timeout=10)
 
     @staticmethod
-    def get_point_by_index(agent, group, index):
+    def get_point_by_index(agent, data_type, index):
         """Ask DNP3Agent for a point value for a DNP3 resource."""
-        return agent.vip.rpc.call(MESA_AGENT_ID, 'get_point_by_index', group, index).get(timeout=10)
+        return agent.vip.rpc.call(MESA_AGENT_ID, 'get_point_by_index', data_type, index).get(timeout=10)
 
     @staticmethod
     def set_point(agent, point_name, value):
@@ -248,7 +248,7 @@ class TestMesaAgent:
                         record[field['name']]
                             for record in send_function[point_name] for field in pdef.array_points
                     ):
-                        get_point = self.get_point_by_index(agent, pdef.group, pdef.index+offset)
+                        get_point = self.get_point_by_index(agent, pdef.data_type, pdef.index+offset)
                         assert get_point == value, 'Expected {} = {}, got {}'.format(point_name, value, get_point)
                 else:
                     get_point = self.get_point(agent, point_name)
@@ -315,7 +315,7 @@ class TestMesaAgent:
         }
         self.send_function_and_confirm(run_master, agent, 'enable_watt_var_power_mode.json', func_ref)
         assert messages['mesa/point']['message'] == {'DWVR.ModEna.BO30': True,
-                                                     'response': 'DWVR.'}
+                                                     'response': 'DWVR.BI49'}
 
     def test_schedule(self, run_master, agent, reset):
         """Test schedule function."""
@@ -479,7 +479,7 @@ class TestMesaAgent:
             assert False, 'Input point with invalid value failed to cause an exception'
         except Exception as err:
             assert str(err) == "dnp3.points.DNP3Exception(\"Received <type 'bool'> value for PointDefinition " \
-                               "{} (30.2, index=55, type=AI).\")".format(point_name)
+                               "{} (event_class=2, index=55, type=AI).\")".format(point_name)
 
     def test_set_points(self, run_master, agent, reset):
         """Test set a set of points and confirm getting the correct values for all point that are set."""
@@ -487,14 +487,14 @@ class TestMesaAgent:
         set_points_dict = {
             'AI0': 0,
             'AI1': 1,
-            'DGEN.VMinRtg': 2,
-            'DGEN.VMaxRtg': 3,
-            'DGEN.WMaxRtg': 4,
-            'DSTO.ChaWMaxRtg': 5,
-            'DGEN.WOvPFRtg': 6,
-            'DSTO.ChaWOvPFRtg': 7,
-            'DGEN.OvPFRtg': 8,
-            'DGEN.WUnPFRtg': 9,
+            'DGEN.VMinRtg.AI2': 2,
+            'DGEN.VMaxRtg.AI3': 3,
+            'DGEN.WMaxRtg.AI4': 4,
+            'DSTO.ChaWMaxRtg.AI5': 5,
+            'DGEN.WOvPFRtg.AI6': 6,
+            'DSTO.ChaWOvPFRtg.AI7': 7,
+            'DGEN.OvPFRtg.AI8': 8,
+            'DGEN.WUnPFRtg.AI9': 9,
             'DHVT.ModEna.BI64': True
         }
 

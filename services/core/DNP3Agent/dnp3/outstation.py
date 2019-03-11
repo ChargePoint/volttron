@@ -127,8 +127,7 @@ class DNP3Outstation(opendnp3.IOutstationApplication):
             if cfg:
                 # cfg.vIndex = virtual index of the point
                 cfg.clazz = point.eclass
-                cfg.svariation = point.svariation
-                cfg.evariation = point.evariation
+                # cfg.svariation and cfg.evariation are static const: cannot modify
 
         _log.debug('Creating a DNP3Manager.')
         threads_to_allocate = self.outstation_config.get('threads_to_allocate', 1)

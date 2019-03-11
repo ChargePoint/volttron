@@ -23,7 +23,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DSTO.DEROpSt.off
+    response: DSTO.DEROpSt.off.BI23
     step_number: 3
   - action: publish
     description: Issue switch control command and receive response
@@ -32,7 +32,7 @@ functions:
     - operate
     optional: M
     point_name: CSWI.Pos.BO5
-    response: DSTO.DEROpSt.off
+    response: DSTO.DEROpSt.off.BI23
     step_number: 4
   - description: Detect if switch is moving
     fcodes:
@@ -72,7 +72,7 @@ functions:
     - select
     - operate
     optional: M
-    point_name: DCTE.CeaEngzReq
+    point_name: DCTE.CeaEngzReq.BO2
     response: DSTO.DEROpSt.connectedandidle.BI14
     step_number: 4
   - description: Give DER Permission to Stop
@@ -89,7 +89,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DSTO.DEROpSt.stopping
+    response: DSTO.DEROpSt.stopping.BI13
     step_number: 6
   - description: Confirm DER has Ceased to Energize
     fcodes:
@@ -97,7 +97,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DSTO.DEROpSt.ceasedtoenergize
+    response: DSTO.DEROpSt.ceasedtoenergize.BI15
     step_number: 7
   - description: Set High Voltage Limit
     fcodes:
@@ -131,8 +131,8 @@ functions:
     fcodes:
     - direct_operate
     optional: I
-    point_name: DCTE.RtnDlyTmms
-    response: DCTE.RtnDlTmms
+    point_name: DCTE.RtnDlyTmms.AO10
+    response: DCTE.RtnDlTmms.AI54
     step_number: 12
   - description: Set Return to Service Time Window
     fcodes:
@@ -153,8 +153,8 @@ functions:
     - select
     - operate
     optional: M
-    point_name: DCTE.RtnSrvReq
-    response: DSTO.DEROpSt.startingandsynchronizing
+    point_name: DCTE.RtnSrvReq.BO1
+    response: DSTO.DEROpSt.startingandsynchronizing.BI12
     step_number: 15
   - action: publish
     description: Give DER Permission to Start
@@ -202,7 +202,7 @@ functions:
     point_name: DECP.VRefOfs.AO1
     response: DECP.VRefOfs.AI30
     step_number: 2
-  - description: Identify the meter used to measure the voltage.  By default this
+  - description: Identify the meter used to measure the voltage. By default this
       is the System Meter (ID = 0)
     fcodes:
     - direct_operate
@@ -386,21 +386,21 @@ functions:
     - direct_operate
     optional: I
     point_name: DHFW.EcpRef.AO61
-    response: DHFW2.EcpRef
+    response: DHFW2.EcpRef.AI119
     step_number: 6
   - description: Set the High Starting Frequency
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.HzStr
-    response: DHFW2.HzStr
+    point_name: DHFW.HzStr.AO62
+    response: DHFW2.HzStr.AI121
     step_number: 7
   - description: Set the High Stopping Frequency
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.HzStop
-    response: DHFW2.HzStop
+    point_name: DHFW.HzStop.AO63
+    response: DHFW2.HzStop.AI122
     step_number: 8
   - description: Set the High Discharging Gradient
     fcodes:
@@ -420,15 +420,15 @@ functions:
     fcodes:
     - direct_operate
     optional: I
-    point_name: DLFW.HzStr
-    response: DLFW2.HzStr
+    point_name: DLFW.HzStr.AO66
+    response: DLFW2.HzStr.AI125
     step_number: 11
   - description: Set the Low Stopping Frequency
     fcodes:
     - direct_operate
     optional: I
-    point_name: DLFW.HzStop
-    response: DLFW2.HzStop
+    point_name: DLFW.HzStop.AO67
+    response: DLFW2.HzStop.AI126
     step_number: 12
   - description: Set the Low Discharging Gradient
     fcodes:
@@ -463,7 +463,7 @@ functions:
     - direct_operate
     optional: I
     point_name: DHFW.OpnLoop.AO72
-    response: DLFW.OpnLoopMax
+    response: DLFW.OpnLoopMax.AI131
     step_number: 17
   - description: Set the Ramp Down Time Constant
     fcodes:
@@ -476,56 +476,56 @@ functions:
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.DschRpuRte
+    point_name: DHFW.DschRpuRte.AO74
     response: DHFW.RpuRte.AI133
     step_number: 19
   - description: Set the Discharging Down Ramp Rate
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.DschRpdRte
-    response: DHFW.RpdRteMax
+    point_name: DHFW.DschRpdRte.AO75
+    response: DHFW.RpdRteMax.AI134
     step_number: 20
   - description: Set the Charging Up Ramp Rate
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.ChaRpuRte
+    point_name: DHFW.ChaRpuRte.AO76
     response: DHFW.RpuChaRte.AI135
     step_number: 21
   - description: Set the Charging Down Ramp Rate
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.ChaRpdRte
-    response: DHFW.RpdChaRteMax
+    point_name: DHFW.ChaRpdRte.AO77
+    response: DHFW.RpdChaRteMax.AI136
     step_number: 22
   - description: Set the Hight Return Gradient
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.RtnRmpRte
-    response: DHFW2.RtnRmpRte
+    point_name: DHFW.RtnRmpRte.AO78
+    response: DHFW2.RtnRmpRte.AI137
     step_number: 23
   - description: Set the Low Return Gradient
     fcodes:
     - direct_operate
     optional: I
-    point_name: DLFW.RtnRmpRte
-    response: DLFW2.RtnRmpRte
+    point_name: DLFW.RtnRmpRte.AO79
+    response: DLFW2.RtnRmpRte.AI138
     step_number: 24
   - description: Set the minium State of Charge to be used by this mode
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.SocUseMin
+    point_name: DHFW.SocUseMin.AO80
     response: DAGC.SocUseMinPct.AI140
     step_number: 25
   - description: Set the maximum State of Charge to be used by this mode
     fcodes:
     - direct_operate
     optional: I
-    point_name: DHFW.SocUseMax
+    point_name: DHFW.SocUseMax.AO81
     response: DAGC.SocUseMaxPct.AI141
     step_number: 26
   - description: Enable or Disable Hysteresis
@@ -826,7 +826,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DGEN.WMax
+    response: DGEN.WMax.AI32
     step_number: 6
   - description: Retrieve Maximum Active Charging Power Capability
     fcodes:
@@ -834,7 +834,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DSTO.ChaWMax
+    response: DSTO.ChaWMax.AI33
     step_number: 7
   - description: Set maximum output in percent of nominal Watts (Charging)
     fcodes:
@@ -921,29 +921,29 @@ functions:
     fcodes:
     - direct_operate
     optional: O
-    point_name: DWGC.DschRpuRte
-    response: DWGC.RpuRte
+    point_name: DWGC.DschRpuRte.AO96
+    response: DWGC.RpuRte.AI157
     step_number: 8
   - description: 'If DWGC.UseRmpRte = 1: Set Discharge Ramp Down Rate'
     fcodes:
     - direct_operate
     optional: O
-    point_name: DWGC.DschRpdRte
-    response: DWGC.RpdRteMax
+    point_name: DWGC.DschRpdRte.AO97
+    response: DWGC.RpdRteMax.AI158
     step_number: 9
   - description: 'If DWGC.UseRmpRte = 1: Set Charge Ramp Up Rate'
     fcodes:
     - direct_operate
     optional: O
-    point_name: DWGC.ChaRpuRte
-    response: DWGC.RpuChaRte
+    point_name: DWGC.ChaRpuRte.AO98
+    response: DWGC.RpuChaRte.AI159
     step_number: 10
   - description: 'If DWGC.UseRmpRte = 1: Set Charge Ramp Down Rate'
     fcodes:
     - direct_operate
     optional: O
-    point_name: DWGC.ChaRpdRte
-    response: DWGC.RpdChaRteMax
+    point_name: DWGC.ChaRpdRte.AO99
+    response: DWGC.RpdChaRteMax.AI160
     step_number: 11
   - description: Set Minimum Reserve for Storage (percent of Battery Capacity Rating)
     fcodes:
@@ -1317,42 +1317,42 @@ functions:
     - direct_operate
     optional: O
     point_name: DAGC.OpnLoop.AO147
-    response: DAGC.RmpUpTms
+    response: DAGC.RmpUpTms.AI214
     step_number: 6
   - description: 'If DAGC.UseRmpRte = 0: Set AGC Ramp Time Constant Down Time'
     fcodes:
     - direct_operate
     optional: O
     point_name: DAGC.OpnLoop.AO148
-    response: DAGC.RmpDnTms
+    response: DAGC.RmpDnTms.AI215
     step_number: 7
   - description: 'If DAGC.UseRmpRte = 1: Set AGC Discharge Ramp Up Rate'
     fcodes:
     - direct_operate
     optional: O
-    point_name: DAGC.DschRpuRte
-    response: DAGC.RpuRte
+    point_name: DAGC.DschRpuRte.AO149
+    response: DAGC.RpuRte.AI216
     step_number: 8
   - description: 'If DAGC.UseRmpRte = 1: Set AGC Discharge Ramp Down Rate'
     fcodes:
     - direct_operate
     optional: O
-    point_name: DAGC.DschRpdRte
-    response: DAGC.RpdRte
+    point_name: DAGC.DschRpdRte.AO150
+    response: DAGC.RpdRte.AI217
     step_number: 9
   - description: 'If DAGC.UseRmpRte = 1: Set AGC Charge Ramp Up Rate'
     fcodes:
     - direct_operate
     optional: O
-    point_name: DAGC.ChaRpuRte
-    response: DAGC.RpuChaRte
+    point_name: DAGC.ChaRpuRte.AO151
+    response: DAGC.RpuChaRte.AI218
     step_number: 10
   - description: 'If DAGC.UseRmpRte = 1: Set AGC Charge Ramp Down Rate'
     fcodes:
     - direct_operate
     optional: O
-    point_name: DAGC.ChaRpdRte
-    response: DAGC.RpdChaRte
+    point_name: DAGC.ChaRpdRte.AO152
+    response: DAGC.RpdChaRte.AI219
     step_number: 11
   - description: Set Minimum Usable State of Charge (percent of Usable Capacity Rating)
     fcodes:
@@ -1397,7 +1397,7 @@ functions:
     - read
     optional: O
     point_name: n/a
-    response: DAGC.SocExpc
+    response: DAGC.SocExpc.AI224
     step_number: 17
 - id: enable_active_power_smoothing
   name: Enable Active Power Smoothing
@@ -1474,29 +1474,29 @@ functions:
     fcodes:
     - direct_operate
     optional: I
-    point_name: DWSM.DschRpuRte
-    response: DWSM.RpuRte
+    point_name: DWSM.DschRpuRte.AO164
+    response: DWSM.RpuRte.AI237
     step_number: 10
   - description: Set the Discharge Ramp Down Rate
     fcodes:
     - direct_operate
     optional: I
-    point_name: DWSM.DschRpdRte
-    response: DWSM.RpdRte
+    point_name: DWSM.DschRpdRte.AO165
+    response: DWSM.RpdRte.AI238
     step_number: 11
   - description: Set the Charge Ramp Up Rate
     fcodes:
     - direct_operate
     optional: I
-    point_name: DWSM.ChaRpuRte
-    response: DWSM.RpuChaRte
+    point_name: DWSM.ChaRpuRte.AO166
+    response: DWSM.RpuChaRte.AI239
     step_number: 12
   - description: Set the Charge Ramp Down Rate
     fcodes:
     - direct_operate
     optional: I
-    point_name: DWSM.ChaRpdRte
-    response: DWSM.RpdChaRte
+    point_name: DWSM.ChaRpdRte.AO167
+    response: DWSM.RpdChaRte.AI240
     step_number: 13
   - action: publish
     description: Enable Active Power Smoothing Mode
@@ -1589,7 +1589,7 @@ functions:
     - read
     optional: O
     point_name: n/a
-    response: DVWC.ReqWLim
+    response: DVWC.ReqWLim.AI249
     step_number: 10
   - description: Read the actual active power produced or absorbed
     fcodes:
@@ -1831,15 +1831,15 @@ functions:
     fcodes:
     - direct_operate
     optional: I
-    point_name: DSTO.OpnLoopPct
-    response: DGEN.OpnLoopPct
+    point_name: DSTO.OpnLoopPct.AO3
+    response: DGEN.OpnLoopPct.AI40
     step_number: 8
   - description: Select the meaning of the Constant VArs Reactive Power Target
     fcodes:
     - direct_operate
     optional: I
-    point_name: DSTO.VArRef
-    response: DGEN.VArSetRef
+    point_name: DSTO.VArRef.AO5
+    response: DGEN.VArSetRef.AI42
     step_number: 9
   - description: 'If DSTO.VArRef = 1: Read percent of maximum active generation power'
     fcodes:
@@ -1847,7 +1847,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DGEN.WMax
+    response: DGEN.WMax.AI32
     step_number: 10
   - description: 'If DSTO.VArRef = 1: Read percent of maximum active charging power'
     fcodes:
@@ -1855,7 +1855,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DSTO.ChaWMax
+    response: DSTO.ChaWMax.AI33
     step_number: 11
   - description: 'If DSTO.VArRef = 2: Read percent of maximum reactive injection power'
     fcodes:
@@ -1863,7 +1863,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DGEN.IvarMax
+    response: DGEN.IvarMax.AI34
     step_number: 12
   - description: 'If DSTO.VArRef = 2: Read percent of maximum reactive absorption
       power'
@@ -1872,7 +1872,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DGEN.AvarMax
+    response: DGEN.AvarMax.AI35
     step_number: 13
   - description: 'If DSTO.VArRef = 3: Read percent of system reactive injection power'
     fcodes:
@@ -1880,7 +1880,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DGEN.AvarAvl
+    response: DGEN.AvarAvl.AI45
     step_number: 14
   - description: 'If DSTO.VArRef = 3: Read percent of system reactive absorption power'
     fcodes:
@@ -1888,7 +1888,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DGEN.IvarAvl
+    response: DGEN.IvarAvl.AI46
     step_number: 15
   - description: Set the Constant VArs Reactive Power Target in percent
     fcodes:
@@ -1978,7 +1978,7 @@ functions:
     - operate
     optional: M
     point_name: DFPF.ModEna.BO28
-    response: DFPF.
+    response: DFPF.BI47
     step_number: 9
 - id: change_and_select_volt-var_control_mode
   mode_types:
@@ -2085,15 +2085,15 @@ functions:
     - select
     - operate
     optional: M
-    point_name: DVVC.ModEna
-    response: DVVC.
+    point_name: DVVC.ModEna.BO29
+    response: DVVC.BI48
     step_number: 13
   - description: Read the adjusted reference voltage, if it is not fixed
     fcodes:
     - read
     optional: O
     point_name: n/a
-    response: DVVR.VRefSet
+    response: DVVR.VRefSet.AI296
     step_number: 14
   - description: Read the measured Voltage
     fcodes:
@@ -2107,14 +2107,14 @@ functions:
     - read
     optional: O
     point_name: n/a
-    response: DVVR.ReqVAr
+    response: DVVR.ReqVAr.AI301
     step_number: 16
   - description: Read the actual VArs (if using system meter)
     fcodes:
     - read
     optional: O
     point_name: n/a
-    response: MMXU.TotVAr
+    response: MMXU.TotVAr.AI541
     step_number: 17
 - id: enable_watt-var_power_mode
   mode_types:
@@ -2168,7 +2168,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DGEN.WMax
+    response: DGEN.WMax.AI32
     step_number: 6
   - description: Read the maximum charging power used as the reference for percent
       Watts
@@ -2177,7 +2177,7 @@ functions:
     - response
     optional: O
     point_name: n/a
-    response: DSTO.ChaWMax
+    response: DSTO.ChaWMax.AI33
     step_number: 7
   - description: Set the ramp up time constant for the output of the curve
     fcodes:
@@ -2208,7 +2208,7 @@ functions:
     - operate
     optional: M
     point_name: DWVR.ModEna.BO30
-    response: DWVR.
+    response: DWVR.BI49
     step_number: 11
 - id: enable_power_factor_correction_mode
   name: Enable Power Factor Correction Mode
@@ -2235,8 +2235,8 @@ functions:
     fcodes:
     - direct_operate
     optional: I
-    point_name: DPFC.RmpRte
-    response: DPFC.RmpTms
+    point_name: DPFC.RmpRte.AO231
+    response: DPFC.RmpTms.AI314
     step_number: 3
   - description: Set enabling reversion timeout
     fcodes:
@@ -2371,8 +2371,8 @@ functions:
     - select
     - operate
     optional: M
-    point_name: FSCHxx.Mod
-    response: FSCH.SchdSt.3
+    point_name: FSCHxx.Mod.BO42
+    response: FSCH.SchdSt.3.BI108
     step_number: 1
   - description: Select shedule index
     fcodes:
@@ -2387,7 +2387,7 @@ functions:
     - read
     optional: O
     point_name: n/a
-    response: FSCH.SchdSt.2
+    response: FSCH.SchdSt.2.BI109
     step_number: 3
   - description: Set selected schedule repeat weekly Sunday
     fcodes:
@@ -2524,7 +2524,7 @@ functions:
     fcodes:
     - direct_operate
     optional: M
-    point_name: FSCH1.SchdPrio
+    point_name: FSCH1.SchdPrio.AO463
     response: FSCH.SchdPrio.AI572
     step_number: 3
   - description: Set the meaning of the Y-values of the schedule, i.e. the schedule
@@ -2532,7 +2532,7 @@ functions:
     fcodes:
     - direct_operate
     optional: M
-    point_name: FSCH.SchdVal.valEq
+    point_name: FSCH.SchdVal.valEq.AO464
     response: AI573
     step_number: 4
   - description: Set the date for the schedule to start

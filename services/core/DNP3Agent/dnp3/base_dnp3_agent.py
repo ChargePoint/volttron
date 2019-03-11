@@ -221,9 +221,8 @@ class BaseDNP3Agent(Agent):
         @param value: The value to set. The value's data type must match the one in the DNP3 PointDefinition.
         """
         point_properties = self.volttron_points.get(point_name, {})
-        group = point_properties.get('group', None)
+        data_type = point_properties.get('data_type', None)
         index = point_properties.get('index', None)
-        data_type = PointDefinition.data_type_for_group(group)
         try:
             if data_type == DATA_TYPE_ANALOG_INPUT:
                 wrapped_value = opendnp3.Analog(value)
@@ -318,7 +317,7 @@ class BaseDNP3Agent(Agent):
         :param point_index: A numeric index for the point.
         :param value: A value to send (unwrapped, simple data type).
         """
-        data_type = PointDefinition.data_type_for_group(point_def.group)
+        data_type = point_def.data_type
         if data_type == DATA_TYPE_ANALOG_INPUT:
             wrapped_val = opendnp3.Analog(float(value))
             if isinstance(value, bool) or not isinstance(value, numbers.Number):
@@ -397,17 +396,17 @@ class BaseDNP3Agent(Agent):
             raise DNP3Exception(e.message)
 
     @RPC.export
-    def get_point_by_index(self, group, index):
+    def get_point_by_index(self, data_type, index):
         """
             Look up the most-recently-received value for a given point.
 
-        @param group: The group number of a DNP3 point.
+        @param data_type: The data_type of a DNP3 point.
         @param index: The index of a DNP3 point.
         @return: The (unwrapped) value of a received point.
         """
-        _log.info('Getting point value for group {} and index {}'.format(group, index))
+        _log.info('Getting point value for data_type {} and index {}'.format(data_type, index))
         try:
-            point_value = self.get_current_point_value(PointDefinition.data_type_for_group(group), index)
+            point_value = self.get_current_point_value(data_type, index)
             return point_value.unwrapped_value() if point_value else None
         except Exception as e:
             raise DNP3Exception(e.message)
@@ -422,7 +421,7 @@ class BaseDNP3Agent(Agent):
         """
         _log.info('Getting values for the following points: {}'.format(point_list))
         try:
-            return {name: self._get_point(self.dnp3_point_name(name)) for name in point_list}
+            return {name: self.get_point(name) for name in point_list}
         except Exception as e:
             raise DNP3Exception(e.message)
 
@@ -438,7 +437,7 @@ class BaseDNP3Agent(Agent):
 
         _log.info('Getting all DNP3 configured point values')
         try:
-            return {name: self._get_point(self.dnp3_point_name(name)) for name in self.volttron_points}
+            return {name: self.get_point(name) for name in self.volttron_points}
         except Exception as e:
             raise DNP3Exception(e.message)
 

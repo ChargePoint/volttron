@@ -185,9 +185,9 @@ class TestDNP3Agent:
         return agent.vip.rpc.call(DNP3_AGENT_ID, 'get_point_definitions', point_names).get(timeout=10)
 
     @staticmethod
-    def get_point_by_index(agent, group, index):
+    def get_point_by_index(agent, data_type, index):
         """Ask DNP3Agent for a point value for a DNP3 resource."""
-        return agent.vip.rpc.call(DNP3_AGENT_ID, 'get_point_by_index', group, index).get(timeout=10)
+        return agent.vip.rpc.call(DNP3_AGENT_ID, 'get_point_by_index', data_type, index).get(timeout=10)
 
     @staticmethod
     def set_point(agent, point_name, value):

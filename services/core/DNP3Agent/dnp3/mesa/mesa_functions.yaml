@@ -1283,7 +1283,7 @@ functions:
     optional: M
     point_name: DLFL.ModEna.BO22
     response: DLFL.ModEna.BI74
-    step_number: 30
+    step_number: 10
 - id: perform_automatic_generation_control_mode
   name: Perform Automatic Generation Control Mode
   ref: AN2018 Spec section 2.6.5 Table 45

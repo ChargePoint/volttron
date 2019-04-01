@@ -1041,14 +1041,12 @@ functions:
     point_name: DWGC.ModEna.BO18
     response: DTCD.ModEna.BI71
     step_number: 8
-- id: enable_active_power_response_modes
-  name: Enable Active Power Response Modes
+- id: enable_active_power_response_mode_1
+  name: Enable Active Power Response Mode 1
   ref: AN2018 Spec section 2.6.4 Table 43
   mode_types:
     schedule:
       - 16
-      - 17
-      - 18
   steps:
   - description: 'Set the priority of mode #1'
     fcodes:
@@ -1057,83 +1055,27 @@ functions:
     point_name: DPKP.ModPrio.AO115
     response: DPKP.ModPrio.AI176
     step_number: 1
-  - description: 'Set the priority of mode #2'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DGFL.ModPrio.AO124
-    response: DGFL.ModPrio.AI187
-    step_number: 2
-  - description: 'Set the priority of mode #3'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DLFL.ModPrio.AO133
-    response: DLFL.ModPrio.AI198
-    step_number: 3
   - description: 'Set enabling time window of mode #1'
     fcodes:
     - direct_operate
     optional: I
     point_name: DPKP.WinTms.AO116
     response: DPKP.WinTms.AI177
-    step_number: 4
-  - description: 'Set enabling time window of mode #2'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DGFL.WinTms.AO125
-    response: DGFL.WinTms.AI188
-    step_number: 5
-  - description: 'Set enabling time window of mode #3'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DLFL.WinTms.AO134
-    response: DLFL.WinTms.AI199
-    step_number: 6
+    step_number: 2
   - description: 'Set enabling ramp time of mode #1'
     fcodes:
     - direct_operate
     optional: I
     point_name: DPKP.RmpTms.AO117
     response: DPKP.RmpTms.AI178
-    step_number: 7
-  - description: 'Set enabling ramp time of mode #2'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DGFL.RmpTms.AO126
-    response: DGFL.RmpTms.AI189
-    step_number: 8
-  - description: 'Set enabling ramp time of mode #3'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DLFL.RmpTms.AO135
-    response: DLFL.RmpTms.AI200
-    step_number: 9
+    step_number: 3
   - description: 'Set reversion timeout period of mode #1'
     fcodes:
     - direct_operate
     optional: I
     point_name: DPKP.RvrtTms.AO118
     response: DPKP.RvrtTms.AI179
-    step_number: 10
-  - description: 'Set reversion timeout period of mode #2'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DGFL.RvrtTms.AO127
-    response: DGFL.RvrtTms.AI190
-    step_number: 11
-  - description: 'Set reversion timeout period of mode #3'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DLFL.RvrtTms.AO136
-    response: DLFL.RvrtTms.AI201
-    step_number: 12
+    step_number: 4
   - description: 'Identify the meter used to measure the Reference Power Input of
       mode #1. By default this is the System Meter (ID = 0)'
     fcodes:
@@ -1141,44 +1083,14 @@ functions:
     optional: I
     point_name: DPKP.EcpRef.AO119
     response: DPKP.EcpRef.AI180
-    step_number: 13
-  - description: 'Identify the meter used to measure the Reference Power Input of
-      mode #2. By default this is the System Meter (ID = 0)'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DGFL.EcpRef.AO128
-    response: DGFL.EcpRef.AI191
-    step_number: 14
-  - description: 'Identify the meter used to measure the Reference Power Input of
-      mode #3. By default this is the System Meter (ID = 0)'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DLFL.EcpRef.AO137
-    response: DLFL.EcpRef.AI202
-    step_number: 15
+    step_number: 5
   - description: 'Set the power threshold for activating mode #1'
     fcodes:
     - direct_operate
     optional: M
     point_name: DPKP.PkPwrWLim.AO120
     response: DPKP.PkPwrWLim.AI182
-    step_number: 16
-  - description: 'Set the power threshold for activating mode #2'
-    fcodes:
-    - direct_operate
-    optional: M
-    point_name: DGFL.PkPwrWLim.AO129
-    response: DGFL.PkPwrWLim.AI193
-    step_number: 17
-  - description: 'Set the power threshold for activating mode #3'
-    fcodes:
-    - direct_operate
-    optional: M
-    point_name: DLFL.PkPwrWLim.AO138
-    response: DLFL.PkPwrWLim.AI204
-    step_number: 18
+    step_number: 6
   - description: 'Set the ratio used to calculate the output power from the measured
       power of mode #1'
     fcodes:
@@ -1186,7 +1098,80 @@ functions:
     optional: M
     point_name: DPKP.PkPwrFolPct.AO121
     response: DPKP.PkPwrFolPct.AI183
-    step_number: 19
+    step_number: 7
+  - description: 'Set the maximum ramp up rate of mode #1'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DPKP.RpuRte.AO122
+    response: DPKP.RpuRte.AI184
+    step_number: 8
+  - description: 'Set the maximum ramp down rate of mode #1'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DPKP.RpdRte.AO123
+    response: DPKP.RpdRte.AI185
+    step_number: 9
+  - action: publish
+    description: 'Enable the active response mode #1'
+    fcodes:
+    - select
+    - operate
+    optional: M
+    point_name: DPKP.ModEna.BO20
+    response: DPKP.ModEna.BI72
+    step_number: 10
+- id: enable_active_power_response_mode_2
+  name: Enable Active Power Response Mode 2
+  ref: AN2018 Spec section 2.6.4 Table 43
+  mode_types:
+    schedule:
+      - 17
+  steps:
+  - description: 'Set the priority of mode #2'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DGFL.ModPrio.AO124
+    response: DGFL.ModPrio.AI187
+    step_number: 1
+  - description: 'Set enabling time window of mode #2'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DGFL.WinTms.AO125
+    response: DGFL.WinTms.AI188
+    step_number: 2
+  - description: 'Set enabling ramp time of mode #2'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DGFL.RmpTms.AO126
+    response: DGFL.RmpTms.AI189
+    step_number: 3
+  - description: 'Set reversion timeout period of mode #2'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DGFL.RvrtTms.AO127
+    response: DGFL.RvrtTms.AI190
+    step_number: 4
+  - description: 'Identify the meter used to measure the Reference Power Input of
+      mode #2. By default this is the System Meter (ID = 0)'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DGFL.EcpRef.AO128
+    response: DGFL.EcpRef.AI191
+    step_number: 5
+  - description: 'Set the power threshold for activating mode #2'
+    fcodes:
+    - direct_operate
+    optional: M
+    point_name: DGFL.PkPwrWLim.AO129
+    response: DGFL.PkPwrWLim.AI193
+    step_number: 6
   - description: 'Set the ratio used to calculate the output power from the measured
       power of mode #2'
     fcodes:
@@ -1194,7 +1179,80 @@ functions:
     optional: M
     point_name: DGFL.PkPwrFolPct.AO130
     response: DGFL.PkPwrFolPct.AI194
-    step_number: 20
+    step_number: 7
+  - description: 'Set the maximum ramp up rate of mode #2'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DGFL.RpuRte.AO131
+    response: DGFL.RpuRte.AI195
+    step_number: 8
+  - description: 'Set the maximum ramp down rate of mode #2'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DGFL.RpdRte.AO132
+    response: DGFL.RpdRte.AI196
+    step_number: 9
+  - action: publish
+    description: 'Enable the active response mode #2'
+    fcodes:
+    - select
+    - operate
+    optional: M
+    point_name: DGFL.ModEna.BO21
+    response: DGFL.ModEna.BI73
+    step_number: 10
+- id: enable_active_power_response_mode_3
+  name: Enable Active Power Response Mode 3
+  ref: AN2018 Spec section 2.6.4 Table 43
+  mode_types:
+    schedule:
+      - 18
+  steps:
+  - description: 'Set the priority of mode #3'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DLFL.ModPrio.AO133
+    response: DLFL.ModPrio.AI198
+    step_number: 1
+  - description: 'Set enabling time window of mode #3'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DLFL.WinTms.AO134
+    response: DLFL.WinTms.AI199
+    step_number: 2
+  - description: 'Set enabling ramp time of mode #3'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DLFL.RmpTms.AO135
+    response: DLFL.RmpTms.AI200
+    step_number: 3
+  - description: 'Set reversion timeout period of mode #3'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DLFL.RvrtTms.AO136
+    response: DLFL.RvrtTms.AI201
+    step_number: 4
+  - description: 'Identify the meter used to measure the Reference Power Input of
+      mode #3. By default this is the System Meter (ID = 0)'
+    fcodes:
+    - direct_operate
+    optional: I
+    point_name: DLFL.EcpRef.AO137
+    response: DLFL.EcpRef.AI202
+    step_number: 5
+  - description: 'Set the power threshold for activating mode #3'
+    fcodes:
+    - direct_operate
+    optional: M
+    point_name: DLFL.PkPwrWLim.AO138
+    response: DLFL.PkPwrWLim.AI204
+    step_number: 6
   - description: 'Set the ratio used to calculate the output power from the measured
       power of mode #3'
     fcodes:
@@ -1202,65 +1260,21 @@ functions:
     optional: M
     point_name: DLFL.PkPwrFolPct.AO139
     response: DLFL.PkPwrFolPct.AI205
-    step_number: 21
-  - description: 'Set the maximum ramp up rate of mode #1'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DPKP.RpuRte.AO122
-    response: DPKP.RpuRte.AI184
-    step_number: 22
-  - description: 'Set the maximum ramp up rate of mode #2'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DGFL.RpuRte.AO131
-    response: DGFL.RpuRte.AI195
-    step_number: 23
+    step_number: 7
   - description: 'Set the maximum ramp up rate of mode #3'
     fcodes:
     - direct_operate
     optional: I
     point_name: DLFL.RpuRte.AO140
     response: DLFL.RpuRte.AI206
-    step_number: 24
-  - description: 'Set the maximum ramp down rate of mode #1'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DPKP.RpdRte.AO123
-    response: DPKP.RpdRte.AI185
-    step_number: 25
-  - description: 'Set the maximum ramp down rate of mode #2'
-    fcodes:
-    - direct_operate
-    optional: I
-    point_name: DGFL.RpdRte.AO132
-    response: DGFL.RpdRte.AI196
-    step_number: 26
+    step_number: 8
   - description: 'Set the maximum ramp down rate of mode #3'
     fcodes:
     - direct_operate
     optional: I
     point_name: DLFL.RpdRte.AO141
     response: DLFL.RpdRte.AI207
-    step_number: 27
-  - description: 'Enable the active response mode #1'
-    fcodes:
-    - select
-    - operate
-    optional: M
-    point_name: DPKP.ModEna.BO20
-    response: DPKP.ModEna.BI72
-    step_number: 28
-  - description: 'Enable the active response mode #2'
-    fcodes:
-    - select
-    - operate
-    optional: M
-    point_name: DGFL.ModEna.BO21
-    response: DGFL.ModEna.BI73
-    step_number: 29
+    step_number: 9
   - action: publish
     description: 'Enable the active response mode #3'
     fcodes:
